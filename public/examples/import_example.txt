@@ -1,0 +1,22 @@
+Q: JavaScript变量声明
+A: 在JavaScript中，使用let关键字声明的变量具有什么特性？
+OPT: 块级作用域
+OPT: 函数作用域
+OPT: 全局作用域
+OPT: 没有作用域限制
+CORRECT: 1
+
+Q: HTTP状态码404
+A: HTTP状态码404表示"Not Found"。
+OPT: True
+OPT: False
+CORRECT: 1
+
+Q: Python列表推导式
+A: 使用列表推导式生成1到10的平方数列表。
+
+Q: Python递归阶乘函数
+A: 编写一个Python函数，使用递归方法计算一个正整数的阶乘。
+
+Q: 算法复杂度分析
+A: 解释什么是时间复杂度和空间复杂度，并说明为什么在算法设计中需要考虑这两个因素。 

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<questions>
+    <question>
+        <title>What is Node.js?</title>
+        <content>Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine. What type of application can you build with Node.js?</content>
+        <type>multiple_choice</type>
+        <subject>Web Development</subject>
+        <difficulty>easy</difficulty>
+        <options>
+            <option correct="true">Server-side applications</option>
+            <option correct="false">Desktop applications only</option>
+            <option correct="false">Mobile applications only</option>
+            <option correct="false">Database management systems</option>
+        </options>
+        <tags>nodejs, javascript, web development</tags>
+    </question>
+
+    <question>
+        <title>Express.js Framework</title>
+        <content>Express.js is a minimal and flexible Node.js web application framework. What is Express.js primarily used for?</content>
+        <type>multiple_choice</type>
+        <subject>Web Development</subject>
+        <difficulty>medium</difficulty>
+        <options>
+            <option correct="false">Database management</option>
+            <option correct="true">Building web applications and APIs</option>
+            <option correct="false">Frontend development</option>
+            <option correct="false">Mobile app development</option>
+        </options>
+        <tags>express, nodejs, web development</tags>
+    </question>
+
+    <question>
+        <title>RESTful API Design</title>
+        <content>Explain the principles of RESTful API design and why they are important for web services.</content>
+        <type>essay</type>
+        <subject>Web Development</subject>
+        <difficulty>hard</difficulty>
+        <correctAnswer>RESTful API design follows principles like statelessness, uniform interface, client-server architecture, and resource-based URLs. These principles ensure scalability, maintainability, and interoperability of web services.</correctAnswer>
+        <tags>rest, api, web services</tags>
+    </question>
+
+    <question>
+        <title>JavaScript Array Methods</title>
+        <content>Write a JavaScript function that finds the maximum value in an array using the reduce method.</content>
+        <type>programming</type>
+        <subject>Programming</subject>
+        <difficulty>medium</difficulty>
+        <programmingLanguage>javascript</programmingLanguage>
+        <testCases>
+            <testCase>
+                <input>[1, 5, 3, 9, 2]</input>
+                <expectedOutput>9</expectedOutput>
+                <description>Test with positive numbers</description>
+            </testCase>
+            <testCase>
+                <input>[-1, -5, -3, -9, -2]</input>
+                <expectedOutput>-1</expectedOutput>
+                <description>Test with negative numbers</description>
+            </testCase>
+        </testCases>
+        <tags>javascript, arrays, programming</tags>
+    </question>
+
+    <question>
+        <title>MongoDB Aggregation Pipeline</title>
+        <content>MongoDB aggregation pipeline allows you to process documents and return computed results. Is this statement true or false?</content>
+        <type>true_false</type>
+        <subject>Database</subject>
+        <difficulty>medium</difficulty>
+        <options>
+            <option correct="true">True</option>
+            <option correct="false">False</option>
+        </options>
+        <tags>mongodb, aggregation, pipeline</tags>
+    </question>
+
+    <question>
+        <question>
+            <title>Database Indexing</title>
+            <content>What is the primary purpose of database indexing?</content>
+            <type>short_answer</type>
+            <subject>Database</subject>
+            <difficulty>medium</difficulty>
+            <correctAnswer>Database indexing improves query performance by creating data structures that allow faster data retrieval and reduce the need for full table scans.</correctAnswer>
+            <tags>database, indexing, performance</tags>
+        </question>
+    </question>
+</questions> 
