@@ -21,9 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/question_bank';
-
-mongoose.connect(MONGODB_URI, {
+mongoose.connect('mongodb://localhost:27017/question_bank', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })

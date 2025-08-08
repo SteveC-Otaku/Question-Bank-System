@@ -243,20 +243,6 @@
                                             <input type="file" class="form-control" id="importFile" accept=".html,.xml,.txt" required>
                                             <div class="form-text">Supported formats: HTML, XML, TXT</div>
                                         </div>
-                                        <div class="mb-3">
-                                            <a href="IMPORT_FORMAT_GUIDE.md" target="_blank" class="btn btn-outline-info btn-sm">
-                                                <i class="fas fa-book me-1"></i>View Import Format Guide
-                                            </a>
-                                            <a href="examples/import_example.html" target="_blank" class="btn btn-outline-secondary btn-sm ms-2">
-                                                <i class="fas fa-file-code me-1"></i>HTML Example
-                                            </a>
-                                            <a href="examples/import_example.xml" target="_blank" class="btn btn-outline-secondary btn-sm ms-2">
-                                                <i class="fas fa-file-code me-1"></i>XML Example
-                                            </a>
-                                            <a href="examples/import_example.txt" target="_blank" class="btn btn-outline-secondary btn-sm ms-2">
-                                                <i class="fas fa-file-alt me-1"></i>TXT Example
-                                            </a>
-                                        </div>
                                         <button type="submit" class="btn btn-primary">
                                             <i class="fas fa-upload me-1"></i>Import
                                         </button>
@@ -323,51 +309,27 @@
                     <div class="row mt-4">
                         <div class="col-md-8">
                             <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center">
+                                <div class="card-header">
                                     <h5>Code Editor</h5>
-                                    <div>
-                                        <button class="btn btn-outline-secondary btn-sm me-2" id="loadTemplate">
-                                            <i class="fas fa-file-code me-1"></i>Load Template
-                                        </button>
-                                        <button class="btn btn-outline-info btn-sm" id="clearCode">
-                                            <i class="fas fa-eraser me-1"></i>Clear
-                                        </button>
-                                    </div>
                                 </div>
                                 <div class="card-body">
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label">Programming Language</label>
-                                            <select class="form-select" id="programmingLanguage">
-                                                <option value="python">Python</option>
-                                                <option value="java">Java</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Input Format</label>
-                                            <select class="form-select" id="inputFormat">
-                                                <option value="comma">Comma Separated (1,2,3)</option>
-                                                <option value="space">Space Separated (1 2 3)</option>
-                                                <option value="newline">Newline Separated</option>
-                                                <option value="single">Single Value</option>
-                                            </select>
-                                        </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Programming Language</label>
+                                        <select class="form-select" id="programmingLanguage">
+                                            <option value="java">Java</option>
+                                            <option value="python">Python</option>
+                                        </select>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Code</label>
-                                        <div class="code-editor-container">
-                                            <textarea class="form-control" id="codeEditor" rows="15" placeholder="Enter your code here..."></textarea>
-                                        </div>
+                                        <textarea class="form-control" id="codeEditor" rows="15" placeholder="Enter your code here..."></textarea>
                                     </div>
                                     <div class="mb-3">
                                         <button class="btn btn-primary me-2" id="validateCode">
                                             <i class="fas fa-check me-1"></i>Validate Syntax
                                         </button>
-                                        <button class="btn btn-success me-2" id="runTests">
+                                        <button class="btn btn-success" id="runTests">
                                             <i class="fas fa-play me-1"></i>Run Tests
-                                        </button>
-                                        <button class="btn btn-warning debug-mode-btn" id="debugCode">
-                                            <i class="fas fa-bug me-1"></i>Debug Mode
                                         </button>
                                     </div>
                                 </div>
@@ -376,26 +338,13 @@
                         
                         <div class="col-md-4">
                             <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center">
+                                <div class="card-header">
                                     <h5>Test Cases</h5>
-                                    <div>
-                                        <button class="btn btn-outline-success btn-sm me-2 auto-generate-btn" id="generateTestCases">
-                                            <i class="fas fa-magic me-1"></i>Auto Generate
-                                        </button>
-                                        <button class="btn btn-outline-danger btn-sm" id="clearTestCases">
-                                            <i class="fas fa-trash me-1"></i>Clear All
-                                        </button>
-                                    </div>
                                 </div>
                                 <div class="card-body">
                                     <div id="testCasesContainer">
                                         <div class="test-case mb-3">
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <h6>Test Case 1</h6>
-                                                <button type="button" class="btn btn-outline-danger btn-sm remove-test-case">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
+                                            <h6>Test Case 1</h6>
                                             <div class="mb-2">
                                                 <label class="form-label">Input</label>
                                                 <input type="text" class="form-control test-input" placeholder="Input value">
@@ -403,10 +352,6 @@
                                             <div class="mb-2">
                                                 <label class="form-label">Expected Output</label>
                                                 <input type="text" class="form-control test-expected" placeholder="Expected output">
-                                            </div>
-                                            <div class="mb-2">
-                                                <label class="form-label">Description (Optional)</label>
-                                                <input type="text" class="form-control test-description" placeholder="Test description">
                                             </div>
                                         </div>
                                     </div>
