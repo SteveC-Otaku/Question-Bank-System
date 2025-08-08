@@ -29,9 +29,7 @@ A comprehensive question bank management system that allows lecturers to create,
 ### Installation Steps
 
 1. **Install Dependencies**
-   - **Windows**: Download and install [Node.js](https://nodejs.org/) and [MongoDB](https://www.mongodb.com/try/download/community)
-   - **macOS**: `brew install node mongodb-community`
-   - **Linux**: `sudo apt-get install nodejs mongodb-org`
+   -Download and install [Node.js](https://nodejs.org/) and [MongoDB](https://www.mongodb.com/try/download/community)
 
 2. **Clone and Install Project**
    ```bash
