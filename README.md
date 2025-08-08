@@ -29,7 +29,7 @@ A comprehensive question bank management system that allows lecturers to create,
 ### Installation Steps
 
 1. **Install Dependencies**
-   -Download and install [Node.js](https://nodejs.org/) and [MongoDB](https://www.mongodb.com/try/download/community)
+   - Download and install [Node.js](https://nodejs.org/) and [MongoDB](https://www.mongodb.com/try/download/community)
 
 2. **Clone and Install Project**
    ```bash
