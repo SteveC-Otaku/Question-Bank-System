@@ -4,9 +4,10 @@ const { spawn } = require('child_process');
 const fs = require('fs-extra');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
+const { authenticateToken, authorizeRole } = require('../middleware/auth');
 
-// Test Java code
-router.post('/java', async (req, res) => {
+// Test Java code - all authenticated users can test code
+router.post('/java', authenticateToken, async (req, res) => {
     try {
         const { code, testCases } = req.body;
         
@@ -79,8 +80,8 @@ router.post('/java', async (req, res) => {
     }
 });
 
-// Test Python code
-router.post('/python', async (req, res) => {
+// Test Python code - all authenticated users can test code
+router.post('/python', authenticateToken, async (req, res) => {
     try {
         const { code, testCases } = req.body;
         
@@ -221,8 +222,8 @@ async function runPythonTest(pythonFilePath, testCase) {
     });
 }
 
-// Get supported languages
-router.get('/languages', (req, res) => {
+// Get supported languages - all authenticated users can view
+router.get('/languages', authenticateToken, (req, res) => {
     res.json({
         languages: [
             {
@@ -241,8 +242,8 @@ router.get('/languages', (req, res) => {
     });
 });
 
-// Validate code syntax
-router.post('/validate', async (req, res) => {
+// Validate code syntax - all authenticated users can validate
+router.post('/validate', authenticateToken, async (req, res) => {
     try {
         const { language, code } = req.body;
         

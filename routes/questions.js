@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const Question = require('../models/Question');
+const { authenticateToken, authorizeRole } = require('../middleware/auth');
 
 // GET all questions with filtering and pagination
-router.get('/', async (req, res) => {
+// All authenticated users can view questions
+router.get('/', authenticateToken, async (req, res) => {
     try {
         const { page = 1, limit = 10, subject, type, difficulty, search } = req.query;
         
@@ -40,7 +42,8 @@ router.get('/', async (req, res) => {
 });
 
 // GET single question by ID
-router.get('/:id', async (req, res) => {
+// All authenticated users can view individual questions
+router.get('/:id', authenticateToken, async (req, res) => {
     try {
         const question = await Question.findById(req.params.id);
         if (!question) {
@@ -53,7 +56,8 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST create new question
-router.post('/', async (req, res) => {
+// Only teachers and admins can create questions
+router.post('/', authenticateToken, authorizeRole(['teacher', 'admin']), async (req, res) => {
     try {
         const question = new Question(req.body);
         const savedQuestion = await question.save();
@@ -64,7 +68,8 @@ router.post('/', async (req, res) => {
 });
 
 // PUT update question
-router.put('/:id', async (req, res) => {
+// Only teachers and admins can update questions
+router.put('/:id', authenticateToken, authorizeRole(['teacher', 'admin']), async (req, res) => {
     try {
         const question = await Question.findByIdAndUpdate(
             req.params.id,
@@ -81,7 +86,8 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE question
-router.delete('/:id', async (req, res) => {
+// Only admins can delete questions
+router.delete('/:id', authenticateToken, authorizeRole(['admin']), async (req, res) => {
     try {
         const question = await Question.findByIdAndDelete(req.params.id);
         if (!question) {
@@ -94,7 +100,8 @@ router.delete('/:id', async (req, res) => {
 });
 
 // GET subjects list
-router.get('/subjects/list', async (req, res) => {
+// All authenticated users can view subjects
+router.get('/subjects/list', authenticateToken, async (req, res) => {
     try {
         const subjects = await Question.distinct('subject');
         res.json(subjects);
@@ -104,7 +111,8 @@ router.get('/subjects/list', async (req, res) => {
 });
 
 // GET question statistics
-router.get('/stats/overview', async (req, res) => {
+// Only teachers and admins can view statistics
+router.get('/stats/overview', authenticateToken, authorizeRole(['teacher', 'admin']), async (req, res) => {
     try {
         const totalQuestions = await Question.countDocuments();
         const questionsByType = await Question.aggregate([

@@ -6,6 +6,7 @@ const path = require('path');
 const xml2js = require('xml2js');
 const cheerio = require('cheerio');
 const Question = require('../models/Question');
+const { authenticateToken, authorizeRole } = require('../middleware/auth');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -32,7 +33,8 @@ const upload = multer({
 });
 
 // Import questions from file
-router.post('/import', upload.single('file'), async (req, res) => {
+// Import questions - only teachers and admins can import
+router.post('/import', authenticateToken, authorizeRole(['teacher', 'admin']), upload.single('file'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: 'No file uploaded' });
@@ -78,7 +80,8 @@ router.post('/import', upload.single('file'), async (req, res) => {
 });
 
 // Export questions to file
-router.post('/export', async (req, res) => {
+// Export questions - only teachers and admins can export
+router.post('/export', authenticateToken, authorizeRole(['teacher', 'admin']), async (req, res) => {
     try {
         const { format, filters } = req.body;
         

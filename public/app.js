@@ -16,10 +16,12 @@ class QuestionBankApp {
     checkAuthentication() {
         // Check if user is authenticated
         if (!window.auth || !window.auth.isAuthenticated()) {
+            console.log('User not authenticated, redirecting to login');
             window.location.href = 'login.html';
             return;
         }
 
+        console.log('User authenticated:', window.auth.getCurrentUser());
         // Display user information
         this.displayUserInfo();
     }
@@ -31,14 +33,321 @@ class QuestionBankApp {
             if (displayName) {
                 displayName.textContent = user.getFullName ? user.getFullName() : `${user.firstName} ${user.lastName}`;
             }
+            
+            // Update dashboard user info
+            this.updateDashboardUserInfo(user);
+            
+            // Update UI based on user role
+            this.updateUIForUserRole(user.role);
+        }
+    }
+
+    updateDashboardUserInfo(user) {
+        // Update dashboard user information
+        const userName = document.getElementById('dashboardUserName');
+        const userEmail = document.getElementById('dashboardUserEmail');
+        const userRole = document.getElementById('dashboardUserRole');
+        
+        if (userName) {
+            userName.textContent = user.getFullName ? user.getFullName() : `${user.firstName} ${user.lastName}`;
+        }
+        
+        if (userEmail) {
+            userEmail.textContent = user.email || 'No email provided';
+        }
+        
+        if (userRole) {
+            userRole.textContent = user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Unknown';
+            userRole.className = `badge fs-6 role-badge-large ${user.role || 'unknown'}`;
+        }
+        
+        // Update permissions overview
+        this.displayPermissionsOverview(user.role);
+    }
+
+    displayPermissionsOverview(role) {
+        const permissionsContainer = document.getElementById('permissionsOverview');
+        if (!permissionsContainer) return;
+
+        const permissions = this.getRolePermissions(role);
+        
+        let html = `
+            <div class="permission-grid">
+                <div class="permission-section">
+                    <h6><i class="fas fa-eye me-2"></i>Viewing & Access</h6>
+        `;
+        
+        // Viewing permissions
+        permissions.viewing.forEach(permission => {
+            html += `
+                <div class="permission-item ${permission.allowed ? 'allowed' : 'restricted'}">
+                    <i class="fas fa-${permission.allowed ? 'check' : 'times'}"></i>
+                    <span>${permission.name}</span>
+                </div>
+            `;
+        });
+        
+        html += `
+                </div>
+                <div class="permission-section">
+                    <h6><i class="fas fa-edit me-2"></i>Content Management</h6>
+        `;
+        
+        // Content management permissions
+        permissions.content.forEach(permission => {
+            html += `
+                <div class="permission-item ${permission.allowed ? 'allowed' : 'restricted'}">
+                    <i class="fas fa-${permission.allowed ? 'check' : 'times'}"></i>
+                    <span>${permission.name}</span>
+                </div>
+            `;
+        });
+        
+        html += `
+                </div>
+                <div class="permission-section">
+                    <h6><i class="fas fa-cogs me-2"></i>System Features</h6>
+        `;
+        
+        // System features permissions
+        permissions.system.forEach(permission => {
+            html += `
+                <div class="permission-item ${permission.allowed ? 'allowed' : 'restricted'}">
+                    <i class="fas fa-${permission.allowed ? 'check' : 'times'}"></i>
+                    <span>${permission.name}</span>
+                </div>
+            `;
+        });
+        
+        html += `
+                </div>
+            </div>
+        `;
+        
+        permissionsContainer.innerHTML = html;
+    }
+
+    getRolePermissions(role) {
+        const allPermissions = {
+            viewing: [
+                { name: 'View Questions', allowed: true },
+                { name: 'View Question Answers', allowed: true },
+                { name: 'Search & Filter Questions', allowed: true },
+                { name: 'View Dashboard Statistics', allowed: role === 'teacher' || role === 'admin' }
+            ],
+            content: [
+                { name: 'Create New Questions', allowed: role === 'teacher' || role === 'admin' },
+                { name: 'Edit Existing Questions', allowed: role === 'teacher' || role === 'admin' },
+                { name: 'Delete Questions', allowed: role === 'admin' },
+                { name: 'Add/Edit Question Answers', allowed: role === 'teacher' || role === 'admin' }
+            ],
+            system: [
+                { name: 'Import Questions from Files', allowed: role === 'teacher' || role === 'admin' },
+                { name: 'Export Questions to Files', allowed: role === 'teacher' || role === 'admin' },
+                { name: 'Code Testing & Validation', allowed: true },
+                { name: 'User Account Management', allowed: role === 'admin', description: 'Create, edit, and manage user accounts' }
+            ]
+        };
+        
+        return allPermissions;
+    }
+
+    updateUIForUserRole(role) {
+        // Hide/show navigation items based on role
+        const dashboardNav = document.querySelector('[data-section="dashboard"]');
+        const questionsNav = document.querySelector('[data-section="questions"]');
+        const importExportNav = document.querySelector('[data-section="import-export"]');
+        const codeTestNav = document.querySelector('[data-section="code-test"]');
+
+        // All users can access questions and code testing
+        if (questionsNav) questionsNav.style.display = 'block';
+        if (codeTestNav) codeTestNav.style.display = 'block';
+
+        // Only teachers and admins can access dashboard and import/export
+        if (role === 'student') {
+            if (dashboardNav) dashboardNav.style.display = 'none';
+            if (importExportNav) importExportNav.style.display = 'none';
+            
+            // Show student-specific UI elements
+            this.showStudentUI();
+        } else {
+            if (dashboardNav) dashboardNav.style.display = 'block';
+            if (importExportNav) importExportNav.style.display = 'block';
+            
+            // Hide student-specific UI elements
+            this.hideStudentUI();
+        }
+
+        // Only admins can access user management
+        const userManagementNav = document.getElementById('userManagementNav');
+        if (userManagementNav) {
+            if (role === 'admin') {
+                userManagementNav.style.display = 'block';
+            } else {
+                userManagementNav.style.display = 'none';
+            }
+        }
+
+        // Update Add Question button visibility
+        const addQuestionBtn = document.getElementById('addQuestionBtn');
+        if (addQuestionBtn) {
+            if (role === 'student') {
+                addQuestionBtn.style.display = 'none';
+            } else {
+                addQuestionBtn.style.display = 'block';
+            }
+        }
+    }
+
+    showStudentUI() {
+        // Show student account info
+        const studentAccountInfo = document.getElementById('studentAccountInfo');
+        const studentPermissionsOverview = document.getElementById('studentPermissionsOverview');
+        
+        if (studentAccountInfo) studentAccountInfo.style.display = 'block';
+        if (studentPermissionsOverview) studentPermissionsOverview.style.display = 'block';
+        
+        // Update student account info
+        this.updateStudentAccountInfo();
+        
+        // Display student permissions
+        this.displayStudentPermissions();
+    }
+
+    hideStudentUI() {
+        // Hide student account info
+        const studentAccountInfo = document.getElementById('studentAccountInfo');
+        const studentPermissionsOverview = document.getElementById('studentPermissionsOverview');
+        
+        if (studentAccountInfo) studentAccountInfo.style.display = 'none';
+        if (studentPermissionsOverview) studentPermissionsOverview.style.display = 'none';
+    }
+
+    updateStudentAccountInfo() {
+        const user = window.auth.getCurrentUser();
+        if (!user) return;
+
+        const userName = document.getElementById('studentUserName');
+        const userEmail = document.getElementById('studentUserEmail');
+        const userRole = document.getElementById('studentUserRole');
+        
+        if (userName) {
+            userName.textContent = user.getFullName ? user.getFullName() : `${user.firstName} ${user.lastName}`;
+        }
+        
+        if (userEmail) {
+            userEmail.textContent = user.email || 'No email provided';
+        }
+        
+        if (userRole) {
+            userRole.textContent = 'Student';
+            userRole.className = 'badge fs-6 role-badge-large student';
+        }
+    }
+
+    displayStudentPermissions() {
+        const permissionsContainer = document.getElementById('studentPermissionsContent');
+        if (!permissionsContainer) return;
+
+        const permissions = [
+            {
+                icon: 'fas fa-eye',
+                title: 'View Questions',
+                description: 'Browse and read all available questions in the system'
+            },
+            {
+                icon: 'fas fa-search',
+                title: 'Search & Filter',
+                description: 'Find specific questions using keywords, subjects, or difficulty levels'
+            },
+            {
+                icon: 'fas fa-lightbulb',
+                title: 'View Answers',
+                description: 'Access detailed explanations and solutions for questions'
+            },
+            {
+                icon: 'fas fa-code',
+                title: 'Code Testing',
+                description: 'Test your programming solutions with our built-in code editor'
+            },
+            {
+                icon: 'fas fa-user',
+                title: 'Profile Management',
+                description: 'Update your personal information and change your password'
+            }
+        ];
+
+        let html = `
+            <div class="row">
+                <div class="col-12">
+                    <p class="text-muted mb-4">As a student, you have access to the following features:</p>
+                </div>
+            </div>
+            <div class="row">
+        `;
+
+        permissions.forEach(permission => {
+            html += `
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="permission-card">
+                        <div class="d-flex align-items-start">
+                            <div class="permission-icon allowed me-3">
+                                <i class="${permission.icon}"></i>
+                            </div>
+                            <div class="permission-content">
+                                <h6>${permission.title}</h6>
+                                <p>${permission.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `
+            </div>
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Need more access?</strong> Contact your instructor or administrator if you need additional permissions for your studies.
+                    </div>
+                </div>
+            </div>
+        `;
+
+        permissionsContainer.innerHTML = html;
+    }
+
+    getRoleColor(role) {
+        switch (role) {
+            case 'admin': return 'danger';
+            case 'teacher': return 'primary';
+            case 'student': return 'success';
+            default: return 'secondary';
         }
     }
 
     init() {
         this.setupEventListeners();
-        this.loadDashboard();
+        
+        // Check user role and load appropriate default section
+        const user = window.auth.getCurrentUser();
+        if (user && user.role === 'student') {
+            // Students start on Questions page
+            this.showSection('questions');
+        } else {
+            // Teachers and admins start on Dashboard
+            this.loadDashboard();
+        }
+        
         this.loadQuestions();
         this.loadSubjects();
+        
+        // Load users if admin
+        if (user && user.role === 'admin') {
+            this.loadUsers();
+        }
     }
 
     setupEventListeners() {
@@ -58,6 +367,17 @@ class QuestionBankApp {
         // Answer management
         document.getElementById('saveAnswer').addEventListener('click', () => this.saveAnswer());
         document.getElementById('viewQuestionAddAnswer').addEventListener('click', () => this.viewQuestionAddAnswer());
+
+        // Profile management
+        document.getElementById('userProfile').addEventListener('click', () => this.showProfile());
+        document.getElementById('saveProfile').addEventListener('click', () => this.saveProfile());
+        document.getElementById('changePasswordForm').addEventListener('submit', (e) => this.changePassword(e));
+
+        // User management (Admin only)
+        document.getElementById('addUserBtn')?.addEventListener('click', () => this.showAddUserModal());
+        document.getElementById('saveUser')?.addEventListener('click', () => this.saveUser());
+        document.getElementById('refreshUsersBtn')?.addEventListener('click', () => this.loadUsers());
+        document.getElementById('userSearchInput')?.addEventListener('input', (e) => this.searchUsers(e.target.value));
 
         // Filters
         document.getElementById('searchInput').addEventListener('input', (e) => this.handleSearch(e.target.value));
@@ -105,6 +425,9 @@ class QuestionBankApp {
                 break;
             case 'questions':
                 this.loadQuestions();
+                break;
+            case 'user-management':
+                this.loadUsers();
                 break;
         }
     }
@@ -250,28 +573,48 @@ class QuestionBankApp {
         const tbody = document.getElementById('questionsTableBody');
         tbody.innerHTML = '';
 
+        // Get current user role
+        const currentUser = window.auth.getCurrentUser();
+        const userRole = currentUser ? currentUser.role : 'student';
+
         questions.forEach(question => {
             const row = document.createElement('tr');
+            
+            // Generate action buttons based on user role
+            let actionButtons = `
+                <button class="btn btn-sm btn-outline-secondary me-1" onclick="app.viewQuestion('${question._id}')" title="View Question">
+                    <i class="fas fa-eye"></i>
+                </button>
+            `;
+
+            // Teachers and admins can edit questions and add answers
+            if (userRole === 'teacher' || userRole === 'admin') {
+                actionButtons += `
+                    <button class="btn btn-sm btn-outline-primary me-1" onclick="app.editQuestion('${question._id}')" title="Edit Question">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-info me-1" onclick="app.addAnswer('${question._id}')" title="Add/Edit Answer">
+                        <i class="fas fa-lightbulb"></i>
+                    </button>
+                `;
+            }
+
+            // Only admins can delete questions
+            if (userRole === 'admin') {
+                actionButtons += `
+                    <button class="btn btn-sm btn-outline-danger" onclick="app.deleteQuestion('${question._id}')" title="Delete Question">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+            }
+
             row.innerHTML = `
                 <td>${question.title}</td>
                 <td>${question.subject}</td>
                 <td><span class="badge bg-primary">${question.type.replace('_', ' ')}</span></td>
                 <td><span class="badge bg-${this.getDifficultyColor(question.difficulty)}">${question.difficulty}</span></td>
                 <td>${new Date(question.createdAt).toLocaleDateString()}</td>
-                <td>
-                    <button class="btn btn-sm btn-outline-secondary me-1" onclick="app.viewQuestion('${question._id}')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-primary me-1" onclick="app.editQuestion('${question._id}')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-info me-1" onclick="app.addAnswer('${question._id}')">
-                        <i class="fas fa-lightbulb"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="app.deleteQuestion('${question._id}')">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
+                <td>${actionButtons}</td>
             `;
             tbody.appendChild(row);
         });
@@ -1408,6 +1751,422 @@ public class TestCode {
             }
         });
         return testCases;
+    }
+
+    // Profile management methods
+    async showProfile() {
+        try {
+            console.log('Starting profile load...');
+            
+            // First try to get user from local storage (fallback)
+            const localUser = window.auth.getCurrentUser();
+            if (localUser) {
+                console.log('Using local user data:', localUser);
+                this.fillProfileForm(localUser);
+                this.displayRolePermissions(localUser.role);
+                new bootstrap.Modal(document.getElementById('profileModal')).show();
+                return;
+            }
+            
+            // Try to fetch from API
+            console.log('Auth headers:', window.auth.getAuthHeaders());
+            
+            const response = await fetch('/api/auth/me', {
+                headers: window.auth.getAuthHeaders()
+            });
+            
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('API Error Response:', errorText);
+                
+                // If API fails but we have local user data, use that
+                if (localUser) {
+                    console.log('API failed, using local user data as fallback');
+                    this.fillProfileForm(localUser);
+                    this.displayRolePermissions(localUser.role);
+                    new bootstrap.Modal(document.getElementById('profileModal')).show();
+                    return;
+                }
+                
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+            
+            const data = await response.json();
+            console.log('Profile data received:', data);
+            
+            const user = data.user;
+            if (!user) {
+                throw new Error('No user data received from server');
+            }
+
+            this.fillProfileForm(user);
+            this.displayRolePermissions(user.role);
+            new bootstrap.Modal(document.getElementById('profileModal')).show();
+
+        } catch (error) {
+            console.error('Error loading profile:', error);
+            
+            // Final fallback: try to use local storage data
+            const localUser = window.auth.getCurrentUser();
+            if (localUser) {
+                console.log('Using local user data as final fallback');
+                this.fillProfileForm(localUser);
+                this.displayRolePermissions(localUser.role);
+                new bootstrap.Modal(document.getElementById('profileModal')).show();
+                this.showMessage('Profile loaded from local data (server unavailable)', 'warning');
+            } else {
+                this.showMessage(`Error loading profile information: ${error.message}`, 'error');
+            }
+        }
+    }
+
+    fillProfileForm(user) {
+        // Fill profile form
+        document.getElementById('profileUsername').value = user.username || '';
+        document.getElementById('profileFirstName').value = user.firstName || '';
+        document.getElementById('profileLastName').value = user.lastName || '';
+        document.getElementById('profileEmail').value = user.email || '';
+        document.getElementById('profileRole').value = user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : '';
+        document.getElementById('profileStatus').value = user.isActive !== undefined ? (user.isActive ? 'Active' : 'Inactive') : 'Unknown';
+        document.getElementById('profileLastLogin').value = user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never';
+        document.getElementById('profileCreatedAt').value = user.createdAt ? new Date(user.createdAt).toLocaleString() : 'Unknown';
+    }
+
+    displayRolePermissions(role) {
+        const permissionsContainer = document.getElementById('rolePermissions');
+        let permissions = [];
+
+        switch (role) {
+            case 'student':
+                permissions = [
+                    { icon: 'fas fa-eye', text: 'View questions and answers' },
+                    { icon: 'fas fa-code', text: 'Test code in Code Testing section' },
+                    { icon: 'fas fa-search', text: 'Search and filter questions' }
+                ];
+                break;
+            case 'teacher':
+                permissions = [
+                    { icon: 'fas fa-eye', text: 'View questions and answers' },
+                    { icon: 'fas fa-plus', text: 'Create new questions' },
+                    { icon: 'fas fa-edit', text: 'Edit existing questions' },
+                    { icon: 'fas fa-lightbulb', text: 'Add/edit question answers' },
+                    { icon: 'fas fa-file-import', text: 'Import questions from files' },
+                    { icon: 'fas fa-file-export', text: 'Export questions to files' },
+                    { icon: 'fas fa-chart-bar', text: 'View question statistics' },
+                    { icon: 'fas fa-code', text: 'Test code in Code Testing section' },
+                    { icon: 'fas fa-search', text: 'Search and filter questions' }
+                ];
+                break;
+            case 'admin':
+                permissions = [
+                    { icon: 'fas fa-eye', text: 'View questions and answers' },
+                    { icon: 'fas fa-plus', text: 'Create new questions' },
+                    { icon: 'fas fa-edit', text: 'Edit existing questions' },
+                    { icon: 'fas fa-trash', text: 'Delete questions' },
+                    { icon: 'fas fa-lightbulb', text: 'Add/edit question answers' },
+                    { icon: 'fas fa-file-import', text: 'Import questions from files' },
+                    { icon: 'fas fa-file-export', text: 'Export questions to files' },
+                    { icon: 'fas fa-chart-bar', text: 'View question statistics' },
+                    { icon: 'fas fa-code', text: 'Test code in Code Testing section' },
+                    { icon: 'fas fa-search', text: 'Search and filter questions' },
+                    { icon: 'fas fa-users', text: 'Manage user accounts (future feature)' }
+                ];
+                break;
+        }
+
+        let html = `<div class="role-badge mb-3">
+            <span class="badge bg-${this.getRoleColor(role)} fs-6">${role.charAt(0).toUpperCase() + role.slice(1)}</span>
+        </div>`;
+
+        html += '<ul class="list-unstyled">';
+        permissions.forEach(permission => {
+            html += `
+                <li class="mb-2">
+                    <i class="${permission.icon} me-2 text-primary"></i>
+                    ${permission.text}
+                </li>
+            `;
+        });
+        html += '</ul>';
+
+        permissionsContainer.innerHTML = html;
+    }
+
+    getRoleColor(role) {
+        switch (role) {
+            case 'student': return 'success';
+            case 'teacher': return 'primary';
+            case 'admin': return 'danger';
+            default: return 'secondary';
+        }
+    }
+
+    async saveProfile() {
+        try {
+            const profileData = {
+                firstName: document.getElementById('profileFirstName').value,
+                lastName: document.getElementById('profileLastName').value,
+                email: document.getElementById('profileEmail').value
+            };
+
+            const response = await fetch('/api/auth/profile', {
+                method: 'PUT',
+                headers: window.auth.getAuthHeaders(),
+                body: JSON.stringify(profileData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            this.showMessage('Profile updated successfully!', 'success');
+            
+            // Update user display name in navbar
+            this.displayUserInfo();
+            
+            // Close modal
+            bootstrap.Modal.getInstance(document.getElementById('profileModal')).hide();
+
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            this.showMessage(`Error updating profile: ${error.message}`, 'error');
+        }
+    }
+
+    async changePassword(event) {
+        event.preventDefault();
+        
+        try {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                this.showMessage('New passwords do not match', 'error');
+                return;
+            }
+
+            const response = await fetch('/api/auth/change-password', {
+                method: 'PUT',
+                headers: window.auth.getAuthHeaders(),
+                body: JSON.stringify({ currentPassword, newPassword })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            }
+
+            this.showMessage('Password changed successfully!', 'success');
+            document.getElementById('changePasswordForm').reset();
+
+        } catch (error) {
+            console.error('Error changing password:', error);
+            this.showMessage(`Error changing password: ${error.message}`, 'error');
+        }
+    }
+
+    // User Management Methods (Admin Only)
+    async loadUsers() {
+        try {
+            console.log('Loading users...');
+            console.log('Auth headers:', window.auth.getAuthHeaders());
+            
+            const response = await fetch('/api/users', {
+                headers: window.auth.getAuthHeaders()
+            });
+            
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Error response:', errorText);
+                throw new Error(`HTTP error! status: ${response.status}: ${errorText}`);
+            }
+            
+            const data = await response.json();
+            console.log('Users data received:', data);
+            this.displayUsers(data.users);
+            
+        } catch (error) {
+            console.error('Error loading users:', error);
+            this.showMessage(`Error loading users: ${error.message}`, 'error');
+        }
+    }
+
+    displayUsers(users) {
+        const tbody = document.getElementById('usersTableBody');
+        if (!tbody) return;
+        
+        tbody.innerHTML = '';
+
+        users.forEach(user => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${user.username}</td>
+                <td>${user.firstName} ${user.lastName}</td>
+                <td>${user.email}</td>
+                <td><span class="badge bg-${this.getRoleColor(user.role)}">${user.role.charAt(0).toUpperCase() + user.role.slice(1)}</span></td>
+                <td><span class="badge bg-${user.isActive ? 'success' : 'danger'}">${user.isActive ? 'Active' : 'Inactive'}</span></td>
+                <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}</td>
+                <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary me-1" onclick="app.editUser('${user._id}')" title="Edit User">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="app.deleteUser('${user._id}')" title="Delete User">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    showAddUserModal() {
+        document.getElementById('userForm').reset();
+        document.getElementById('userId').value = '';
+        document.getElementById('userModalTitle').innerHTML = '<i class="fas fa-user-plus me-2"></i>Add New User';
+        document.getElementById('userPassword').required = true;
+        new bootstrap.Modal(document.getElementById('userModal')).show();
+    }
+
+    async editUser(userId) {
+        try {
+            const response = await fetch(`/api/users/${userId}`, {
+                headers: window.auth.getAuthHeaders()
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const user = await response.json();
+            
+            // Fill form with user data
+            document.getElementById('userId').value = user._id;
+            document.getElementById('userUsername').value = user.username;
+            document.getElementById('userEmail').value = user.email;
+            document.getElementById('userFirstName').value = user.firstName;
+            document.getElementById('userLastName').value = user.lastName;
+            document.getElementById('userRole').value = user.role;
+            document.getElementById('userStatus').value = user.isActive.toString();
+            document.getElementById('userPassword').required = false;
+            document.getElementById('userPassword').placeholder = 'Leave blank to keep current password';
+            
+            document.getElementById('userModalTitle').innerHTML = '<i class="fas fa-user-edit me-2"></i>Edit User';
+            new bootstrap.Modal(document.getElementById('userModal')).show();
+            
+        } catch (error) {
+            console.error('Error loading user:', error);
+            this.showMessage(`Error loading user: ${error.message}`, 'error');
+        }
+    }
+
+    async saveUser() {
+        try {
+            const userId = document.getElementById('userId').value;
+            const userData = {
+                username: document.getElementById('userUsername').value,
+                email: document.getElementById('userEmail').value,
+                firstName: document.getElementById('userFirstName').value,
+                lastName: document.getElementById('userLastName').value,
+                role: document.getElementById('userRole').value,
+                isActive: document.getElementById('userStatus').value === 'true'
+            };
+
+            // Add password only if provided
+            const password = document.getElementById('userPassword').value;
+            if (password) {
+                userData.password = password;
+            }
+
+            const url = userId ? `/api/users/${userId}` : '/api/users';
+            const method = userId ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    ...window.auth.getAuthHeaders(),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            this.showMessage(result.message, 'success');
+            
+            // Close modal and refresh users list
+            bootstrap.Modal.getInstance(document.getElementById('userModal')).hide();
+            this.loadUsers();
+
+        } catch (error) {
+            console.error('Error saving user:', error);
+            this.showMessage(`Error saving user: ${error.message}`, 'error');
+        }
+    }
+
+    async deleteUser(userId) {
+        if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+            try {
+                const response = await fetch(`/api/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: window.auth.getAuthHeaders()
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                this.showMessage(result.message, 'success');
+                this.loadUsers();
+
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                this.showMessage(`Error deleting user: ${error.message}`, 'error');
+            }
+        }
+    }
+
+    searchUsers(searchTerm) {
+        // Implement search functionality
+        if (searchTerm.trim()) {
+            this.loadUsersWithSearch(searchTerm);
+        } else {
+            this.loadUsers();
+        }
+    }
+
+    async loadUsersWithSearch(searchTerm) {
+        try {
+            const response = await fetch(`/api/users?search=${encodeURIComponent(searchTerm)}`, {
+                headers: window.auth.getAuthHeaders()
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            this.displayUsers(data.users);
+            
+        } catch (error) {
+            console.error('Error searching users:', error);
+            this.showMessage(`Error searching users: ${error.message}`, 'error');
+        }
     }
 }
 

@@ -10,6 +10,7 @@ const questionRoutes = require('./routes/questions');
 const importExportRoutes = require('./routes/importExport');
 const codeTestRoutes = require('./routes/codeTest');
 const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -49,6 +50,7 @@ app.use('/api/questions', questionRoutes);
 app.use('/api/import-export', importExportRoutes);
 app.use('/api/code-test', codeTestRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 // Serve the main application
 app.get('/', (req, res) => {
