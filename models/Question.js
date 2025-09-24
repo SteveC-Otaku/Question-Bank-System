@@ -55,7 +55,7 @@ const questionSchema = new mongoose.Schema({
     },
     programmingLanguage: {
         type: String,
-        enum: ['java', 'python', 'none'],
+        enum: ['java', 'python', 'javascript', 'none'],
         default: 'none'
     },
     testCases: [{
