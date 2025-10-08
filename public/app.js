@@ -22,8 +22,40 @@ class QuestionBankApp {
         }
 
         console.log('User authenticated:', window.auth.getCurrentUser());
+        
+        // 验证token是否仍然有效
+        this.validateToken();
+        
         // Display user information
         this.displayUserInfo();
+    }
+
+    async validateToken() {
+        try {
+            const response = await fetch('/api/auth/me', {
+                headers: window.auth.getAuthHeaders()
+            });
+            
+            if (!response.ok) {
+                if (response.status === 401) {
+                    console.error('Token invalid or expired');
+                    this.showMessage('Session expired. Please log in again.', 'error');
+                    window.auth.handleLogout();
+                    return false;
+                }
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('Token validation successful:', data);
+            return true;
+            
+        } catch (error) {
+            console.error('Token validation failed:', error);
+            this.showMessage('Authentication failed. Please log in again.', 'error');
+            window.auth.handleLogout();
+            return false;
+        }
     }
 
     displayUserInfo() {
@@ -359,48 +391,92 @@ class QuestionBankApp {
             });
         });
 
-        // Question management
-        document.getElementById('saveQuestion').addEventListener('click', () => this.saveQuestion());
-        document.getElementById('addOption').addEventListener('click', () => this.addOption());
-        document.getElementById('questionType').addEventListener('change', () => this.handleQuestionTypeChange());
+        // Question management - 添加null检查
+        const saveQuestionBtn = document.getElementById('saveQuestion');
+        if (saveQuestionBtn) saveQuestionBtn.addEventListener('click', () => this.saveQuestion());
+        
+        const addOptionBtn = document.getElementById('addOption');
+        if (addOptionBtn) addOptionBtn.addEventListener('click', () => this.addOption());
+        
+        const questionTypeSelect = document.getElementById('questionType');
+        if (questionTypeSelect) questionTypeSelect.addEventListener('change', () => this.handleQuestionTypeChange());
 
-        // Answer management
-        document.getElementById('saveAnswer').addEventListener('click', () => this.saveAnswer());
-        document.getElementById('viewQuestionAddAnswer').addEventListener('click', () => this.viewQuestionAddAnswer());
+        // Answer management - 添加null检查
+        const saveAnswerBtn = document.getElementById('saveAnswer');
+        if (saveAnswerBtn) saveAnswerBtn.addEventListener('click', () => this.saveAnswer());
+        
+        const viewQuestionAddAnswerBtn = document.getElementById('viewQuestionAddAnswer');
+        if (viewQuestionAddAnswerBtn) viewQuestionAddAnswerBtn.addEventListener('click', () => this.viewQuestionAddAnswer());
 
-        // Profile management
-        document.getElementById('userProfile').addEventListener('click', () => this.showProfile());
-        document.getElementById('saveProfile').addEventListener('click', () => this.saveProfile());
-        document.getElementById('changePasswordForm').addEventListener('submit', (e) => this.changePassword(e));
+        // Profile management - 添加null检查
+        const userProfileBtn = document.getElementById('userProfile');
+        if (userProfileBtn) userProfileBtn.addEventListener('click', () => this.showProfile());
+        
+        const saveProfileBtn = document.getElementById('saveProfile');
+        if (saveProfileBtn) saveProfileBtn.addEventListener('click', () => this.saveProfile());
+        
+        const changePasswordForm = document.getElementById('changePasswordForm');
+        if (changePasswordForm) changePasswordForm.addEventListener('submit', (e) => this.changePassword(e));
 
-        // User management (Admin only)
+        // User management (Admin only) - 已经使用了可选链操作符
         document.getElementById('addUserBtn')?.addEventListener('click', () => this.showAddUserModal());
         document.getElementById('saveUser')?.addEventListener('click', () => this.saveUser());
         document.getElementById('refreshUsersBtn')?.addEventListener('click', () => this.loadUsers());
         document.getElementById('userSearchInput')?.addEventListener('input', (e) => this.searchUsers(e.target.value));
 
-        // Filters
-        document.getElementById('searchInput').addEventListener('input', (e) => this.handleSearch(e.target.value));
-        document.getElementById('subjectFilter').addEventListener('change', () => this.applyFilters());
-        document.getElementById('typeFilter').addEventListener('change', () => this.applyFilters());
-        document.getElementById('difficultyFilter').addEventListener('change', () => this.applyFilters());
-        document.getElementById('clearFilters').addEventListener('click', () => this.clearFilters());
+        // Filters - 添加null检查
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
+        
+        const subjectFilter = document.getElementById('subjectFilter');
+        if (subjectFilter) subjectFilter.addEventListener('change', () => this.applyFilters());
+        
+        const typeFilter = document.getElementById('typeFilter');
+        if (typeFilter) typeFilter.addEventListener('change', () => this.applyFilters());
+        
+        const difficultyFilter = document.getElementById('difficultyFilter');
+        if (difficultyFilter) difficultyFilter.addEventListener('change', () => this.applyFilters());
+        
+        const clearFiltersBtn = document.getElementById('clearFilters');
+        if (clearFiltersBtn) clearFiltersBtn.addEventListener('click', () => this.clearFilters());
 
-        // Import/Export
-        document.getElementById('importForm').addEventListener('submit', (e) => this.handleImport(e));
-        document.getElementById('exportForm').addEventListener('submit', (e) => this.handleExport(e));
+        // Import/Export - 添加null检查
+        const importForm = document.getElementById('importForm');
+        if (importForm) importForm.addEventListener('submit', (e) => this.handleImport(e));
+        
+        const exportForm = document.getElementById('exportForm');
+        if (exportForm) exportForm.addEventListener('submit', (e) => this.handleExport(e));
 
-        // Code testing - enhanced functionality
-        document.getElementById('validateCode').addEventListener('click', () => this.validateCode());
-        document.getElementById('runTests').addEventListener('click', () => this.runTests());
-        document.getElementById('debugCode').addEventListener('click', () => this.debugCode());
-        document.getElementById('addTestCase').addEventListener('click', () => this.addTestCase());
-        document.getElementById('loadTemplate').addEventListener('click', () => this.loadCodeTemplate());
-        document.getElementById('clearCode').addEventListener('click', () => this.clearCode());
-        document.getElementById('generateTestCases').addEventListener('click', () => this.generateTestCases());
-        document.getElementById('clearTestCases').addEventListener('click', () => this.clearTestCases());
-        document.getElementById('programmingLanguage').addEventListener('change', () => this.handleLanguageChange());
-        document.getElementById('inputFormat').addEventListener('change', () => this.handleInputFormatChange());
+        // Code testing - enhanced functionality - 添加null检查
+        const validateCodeBtn = document.getElementById('validateCode');
+        if (validateCodeBtn) validateCodeBtn.addEventListener('click', () => this.validateCode());
+        
+        const runTestsBtn = document.getElementById('runTests');
+        if (runTestsBtn) runTestsBtn.addEventListener('click', () => this.runTests());
+        
+        const debugCodeBtn = document.getElementById('debugCode');
+        if (debugCodeBtn) debugCodeBtn.addEventListener('click', () => this.debugCode());
+        
+        const addTestCaseBtn = document.getElementById('addTestCase');
+        if (addTestCaseBtn) addTestCaseBtn.addEventListener('click', () => this.addTestCase());
+        
+        const loadTemplateBtn = document.getElementById('loadTemplate');
+        if (loadTemplateBtn) loadTemplateBtn.addEventListener('click', () => this.loadCodeTemplate());
+        
+        const clearCodeBtn = document.getElementById('clearCode');
+        if (clearCodeBtn) clearCodeBtn.addEventListener('click', () => this.clearCode());
+        
+        const generateTestCasesBtn = document.getElementById('generateTestCases');
+        if (generateTestCasesBtn) generateTestCasesBtn.addEventListener('click', () => this.generateTestCases());
+        
+        const clearTestCasesBtn = document.getElementById('clearTestCases');
+        if (clearTestCasesBtn) clearTestCasesBtn.addEventListener('click', () => this.clearTestCases());
+        
+        const programmingLanguageSelect = document.getElementById('programmingLanguage');
+        if (programmingLanguageSelect) programmingLanguageSelect.addEventListener('change', () => this.handleLanguageChange());
+        
+        const inputFormatSelect = document.getElementById('inputFormat');
+        if (inputFormatSelect) inputFormatSelect.addEventListener('change', () => this.handleInputFormatChange());
     }
 
     showSection(sectionName) {
@@ -529,6 +605,14 @@ class QuestionBankApp {
 
     async loadQuestions(page = 1) {
         try {
+            // 检查认证状态
+            if (!window.auth || !window.auth.isAuthenticated()) {
+                console.error('User not authenticated');
+                this.showMessage('Please log in to access questions', 'error');
+                window.location.href = 'login.html';
+                return;
+            }
+
             const params = new URLSearchParams({
                 page: page,
                 limit: this.itemsPerPage,
@@ -536,11 +620,19 @@ class QuestionBankApp {
             });
 
             console.log('Loading questions with params:', params.toString());
+            console.log('Auth headers:', window.auth.getAuthHeaders());
+            
             const response = await fetch(`/api/questions?${params}`, {
                 headers: window.auth.getAuthHeaders()
             });
             
             if (!response.ok) {
+                if (response.status === 401) {
+                    console.error('Authentication failed, redirecting to login');
+                    this.showMessage('Session expired. Please log in again.', 'error');
+                    window.auth.handleLogout();
+                    return;
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
@@ -557,15 +649,17 @@ class QuestionBankApp {
             
             // 显示空状态
             const tbody = document.getElementById('questionsTableBody');
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="text-center text-muted">
-                        <i class="fas fa-inbox fa-2x mb-2"></i>
-                        <br>No questions found. 
-                        <br><small>Try adding some questions or check your database connection.</small>
-                    </td>
-                </tr>
-            `;
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">
+                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                            <br>No questions found. 
+                            <br><small>Try adding some questions or check your database connection.</small>
+                        </td>
+                    </tr>
+                `;
+            }
         }
     }
 
