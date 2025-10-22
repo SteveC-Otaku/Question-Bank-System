@@ -709,12 +709,9 @@ class QuestionBankApp {
         const pagination = document.getElementById('pagination');
         pagination.innerHTML = '';
         
-        console.log('Creating pagination with currentPage:', currentPage, 'totalPages:', totalPages);
-
         // Previous button
         const prevLi = document.createElement('li');
         const isFirstPage = currentPage === 1;
-        console.log('isFirstPage:', isFirstPage);
         prevLi.className = `page-item ${isFirstPage ? 'disabled' : ''}`;
         
         if (isFirstPage) {
@@ -760,7 +757,6 @@ class QuestionBankApp {
         // Next button
         const nextLi = document.createElement('li');
         const isLastPage = currentPage === totalPages;
-        console.log('isLastPage:', isLastPage, 'currentPage:', currentPage, 'totalPages:', totalPages);
         nextLi.className = `page-item ${isLastPage ? 'disabled' : ''}`;
         
         if (isLastPage) {
@@ -1756,10 +1752,24 @@ public class TestCode {
         }
     }
 
-    handleLanguageChange() {
+    handleLanguageChange(retryCount = 0) {
         const language = document.getElementById('programmingLanguage').value;
         const codeEditor = document.getElementById('codeEditor');
         const codeHint = document.getElementById('codeHint');
+        
+        // 检查元素是否存在，如果不存在则延迟重试（最多重试5次）
+        if (!codeEditor || !codeHint) {
+            if (retryCount < 5) {
+                // 如果元素不存在，延迟100ms后重试
+                setTimeout(() => {
+                    this.handleLanguageChange(retryCount + 1);
+                }, 100);
+                return;
+            } else {
+                // 重试次数超过限制，静默返回
+                return;
+            }
+        }
         
         // Update placeholder based on language
         switch (language) {
@@ -1770,10 +1780,6 @@ public class TestCode {
             case 'java':
                 codeEditor.placeholder = 'Enter your Java code here...\n\nExample:\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        int a = scanner.nextInt();\n        int b = scanner.nextInt();\n        System.out.println(a + b);\n    }\n}';
                 codeHint.innerHTML = '<i class="fas fa-info-circle me-2"></i><strong>Java Tip:</strong> Use <code>Scanner</code> class to read input, <code>nextInt()</code> directly returns integer type.';
-                break;
-            case 'javascript':
-                codeEditor.placeholder = 'Enter your JavaScript code here...\n\nExample:\nconst readline = require(\'readline\');\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.question(\'\', (a) => {\n    rl.question(\'\', (b) => {\n        console.log(parseInt(a) + parseInt(b));\n        rl.close();\n    });\n});';
-                codeHint.innerHTML = '<i class="fas fa-info-circle me-2"></i><strong>JavaScript Tip:</strong> Use <code>parseInt()</code> or <code>parseFloat()</code> to convert strings to numbers.';
                 break;
         }
         

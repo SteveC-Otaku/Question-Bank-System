@@ -139,64 +139,6 @@ router.post('/python', authenticateToken, async (req, res) => {
     }
 });
 
-// Test JavaScript code - all authenticated users can test code
-router.post('/javascript', authenticateToken, async (req, res) => {
-    try {
-        const { code, testCases } = req.body;
-        
-        if (!code) {
-            return res.status(400).json({ error: 'No code provided' });
-        }
-
-        const testDir = path.join(__dirname, '../temp', uuidv4());
-        await fs.ensureDir(testDir);
-
-        // Create JavaScript file
-        const jsFileName = 'test_code.js';
-        const jsFilePath = path.join(testDir, jsFileName);
-        
-        // Clean the code - remove any leading/trailing whitespace and fix indentation
-        const cleanCode = code.trim().split('\n').map(line => line.trim()).join('\n');
-        
-        // Ensure the directory exists and write with proper encoding
-        await fs.ensureDir(path.dirname(jsFilePath));
-        await fs.writeFile(jsFilePath, cleanCode, { encoding: 'utf8' });
-        
-        console.log('JavaScript file created:', jsFilePath);
-        console.log('File content:', cleanCode);
-
-        // Run test cases
-        const testResults = [];
-        for (let i = 0; i < testCases.length; i++) {
-            const testCase = testCases[i];
-            const result = await runJavaScriptTest(jsFilePath, testCase);
-            testResults.push({
-                testCase: i + 1,
-                input: testCase.input,
-                expectedOutput: testCase.expectedOutput,
-                actualOutput: result.output,
-                passed: result.passed,
-                error: result.error
-            });
-        }
-
-        // Clean up
-        await fs.remove(testDir);
-
-        res.json({
-            success: true,
-            testResults: testResults,
-            summary: {
-                total: testResults.length,
-                passed: testResults.filter(r => r.passed).length,
-                failed: testResults.filter(r => !r.passed).length
-            }
-        });
-
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
 
 // Helper functions
 async function compileJava(javaFilePath) {
@@ -346,83 +288,6 @@ async function runPythonTest(pythonFilePath, testCase) {
     });
 }
 
-async function runJavaScriptTest(jsFilePath, testCase) {
-    return new Promise((resolve) => {
-        const node = spawn('node', [jsFilePath]);
-        
-        let output = '';
-        let errorOutput = '';
-        let timeoutId;
-        let inputSent = false;
-        
-        console.log('Running JavaScript test with input:', testCase.input);
-        
-        // Set timeout (10 seconds)
-        timeoutId = setTimeout(() => {
-            node.kill();
-            resolve({
-                output: '',
-                error: 'Code execution timeout (10 seconds)',
-                passed: false
-            });
-        }, 10000);
-        
-        node.stdout.on('data', (data) => {
-            const dataStr = data.toString();
-            console.log('Node stdout:', dataStr);
-            output += dataStr;
-        });
-        
-        node.stderr.on('data', (data) => {
-            const dataStr = data.toString();
-            console.log('Node stderr:', dataStr);
-            errorOutput += dataStr;
-        });
-        
-        node.on('close', (code) => {
-            clearTimeout(timeoutId);
-            console.log('Node process closed with code:', code);
-            console.log('Final output:', output);
-            console.log('Final error:', errorOutput);
-            
-            const actualOutput = output.trim();
-            const expectedOutput = testCase.expectedOutput.trim();
-            const passed = actualOutput === expectedOutput;
-            
-            console.log('Actual output:', actualOutput);
-            console.log('Expected output:', expectedOutput);
-            console.log('Passed:', passed);
-            
-            resolve({
-                output: actualOutput,
-                error: errorOutput || null,
-                passed: passed
-            });
-        });
-        
-        node.on('error', (err) => {
-            clearTimeout(timeoutId);
-            console.log('Node process error:', err);
-            resolve({
-                output: '',
-                error: `Process error: ${err.message}`,
-                passed: false
-            });
-        });
-        
-        // Send input if provided - handle multiple lines
-        if (testCase.input && !inputSent) {
-            inputSent = true;
-            console.log('Sending input to Node process:', testCase.input);
-            const inputLines = testCase.input.split('\n');
-            inputLines.forEach((line, index) => {
-                console.log(`Sending line ${index + 1}:`, line);
-                node.stdin.write(line + '\n');
-            });
-            node.stdin.end();
-        }
-    });
-}
 
 // Get supported languages - all authenticated users can view
 router.get('/languages', authenticateToken, (req, res) => {
@@ -440,12 +305,6 @@ router.get('/languages', authenticateToken, (req, res) => {
                 description: 'Python programming language',
                 features: ['Interpreted execution', 'Runtime testing', 'Standard input/output']
             },
-            {
-                name: 'JavaScript',
-                extension: '.js',
-                description: 'JavaScript programming language',
-                features: ['Interpreted execution', 'Runtime testing', 'Standard input/output']
-            }
         ]
     });
 });
@@ -467,9 +326,6 @@ router.post('/validate', authenticateToken, async (req, res) => {
                 break;
             case 'python':
                 validationResult = await validatePythonCode(code);
-                break;
-            case 'javascript':
-                validationResult = await validateJavaScriptCode(code);
                 break;
             default:
                 return res.status(400).json({ error: 'Unsupported language' });
@@ -541,33 +397,5 @@ async function validatePythonCode(code) {
     });
 }
 
-async function validateJavaScriptCode(code) {
-    const testDir = path.join(__dirname, '../temp', uuidv4());
-    await fs.ensureDir(testDir);
-    
-    const jsFilePath = path.join(testDir, 'test_code.js');
-    await fs.writeFile(jsFilePath, code);
-    
-    return new Promise((resolve) => {
-        const node = spawn('node', ['--check', jsFilePath]);
-        
-        let errorOutput = '';
-        
-        node.stderr.on('data', (data) => {
-            errorOutput += data.toString();
-        });
-        
-        node.on('close', async (code) => {
-            // Clean up
-            await fs.remove(testDir);
-            
-            resolve({
-                valid: code === 0,
-                errors: code === 0 ? [] : [errorOutput],
-                warnings: []
-            });
-        });
-    });
-}
 
 module.exports = router; 
