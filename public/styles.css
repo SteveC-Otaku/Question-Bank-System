@@ -226,6 +226,20 @@ body {
     border: none;
 }
 
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.pagination .page-item.disabled .page-link:hover {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    transform: none;
+}
+
 /* Alerts */
 .alert {
     border-radius: 10px;

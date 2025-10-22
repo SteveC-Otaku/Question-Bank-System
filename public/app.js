@@ -622,8 +622,8 @@ class QuestionBankApp {
             console.log('Questions data received:', data);
 
             this.displayQuestions(data.questions);
-            this.createPagination(data.currentPage, data.totalPages);
-            this.currentPage = page;
+            this.currentPage = parseInt(page);
+            this.createPagination(this.currentPage, data.totalPages);
 
         } catch (error) {
             console.error('Error loading questions:', error);
@@ -708,11 +708,30 @@ class QuestionBankApp {
     createPagination(currentPage, totalPages) {
         const pagination = document.getElementById('pagination');
         pagination.innerHTML = '';
+        
+        console.log('Creating pagination with currentPage:', currentPage, 'totalPages:', totalPages);
 
         // Previous button
         const prevLi = document.createElement('li');
-        prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
-        prevLi.innerHTML = `<a class="page-link" href="#" onclick="app.loadQuestions(${currentPage - 1})">Previous</a>`;
+        const isFirstPage = currentPage === 1;
+        console.log('isFirstPage:', isFirstPage);
+        prevLi.className = `page-item ${isFirstPage ? 'disabled' : ''}`;
+        
+        if (isFirstPage) {
+            // 第一页时显示禁用的Previous按钮
+            prevLi.innerHTML = '<span class="page-link">Previous</span>';
+        } else {
+            // 非第一页时显示可点击的Previous按钮
+            const prevLink = document.createElement('a');
+            prevLink.className = 'page-link';
+            prevLink.href = '#';
+            prevLink.textContent = 'Previous';
+            prevLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.loadQuestions(this.currentPage - 1);
+            });
+            prevLi.appendChild(prevLink);
+        }
         pagination.appendChild(prevLi);
 
         // Page numbers
@@ -720,7 +739,15 @@ class QuestionBankApp {
             if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
                 const li = document.createElement('li');
                 li.className = `page-item ${i === currentPage ? 'active' : ''}`;
-                li.innerHTML = `<a class="page-link" href="#" onclick="app.loadQuestions(${i})">${i}</a>`;
+                const link = document.createElement('a');
+                link.className = 'page-link';
+                link.href = '#';
+                link.textContent = i.toString();
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.loadQuestions(i);
+                });
+                li.appendChild(link);
                 pagination.appendChild(li);
             } else if (i === currentPage - 3 || i === currentPage + 3) {
                 const li = document.createElement('li');
@@ -732,8 +759,25 @@ class QuestionBankApp {
 
         // Next button
         const nextLi = document.createElement('li');
-        nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
-        nextLi.innerHTML = `<a class="page-link" href="#" onclick="app.loadQuestions(${currentPage + 1})">Next</a>`;
+        const isLastPage = currentPage === totalPages;
+        console.log('isLastPage:', isLastPage, 'currentPage:', currentPage, 'totalPages:', totalPages);
+        nextLi.className = `page-item ${isLastPage ? 'disabled' : ''}`;
+        
+        if (isLastPage) {
+            // 最后一页时显示禁用的Next按钮
+            nextLi.innerHTML = '<span class="page-link">Next</span>';
+        } else {
+            // 非最后一页时显示可点击的Next按钮
+            const nextLink = document.createElement('a');
+            nextLink.className = 'page-link';
+            nextLink.href = '#';
+            nextLink.textContent = 'Next';
+            nextLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.loadQuestions(this.currentPage + 1);
+            });
+            nextLi.appendChild(nextLink);
+        }
         pagination.appendChild(nextLi);
     }
 
