@@ -58,8 +58,14 @@ router.post('/import', authenticateToken, authorizeRole(['teacher', 'admin']), u
                 return res.status(400).json({ error: 'Unsupported file format' });
         }
 
+        // Add createdBy field to all questions
+        const questionsWithCreator = questions.map(question => ({
+            ...question,
+            createdBy: req.user.id
+        }));
+
         // Save questions to database
-        const savedQuestions = await Question.insertMany(questions);
+        const savedQuestions = await Question.insertMany(questionsWithCreator);
         
         // Clean up uploaded file
         await fs.remove(filePath);
