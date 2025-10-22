@@ -59,7 +59,11 @@ router.get('/:id', authenticateToken, async (req, res) => {
 // Only teachers and admins can create questions
 router.post('/', authenticateToken, authorizeRole(['teacher', 'admin']), async (req, res) => {
     try {
-        const question = new Question(req.body);
+        const questionData = {
+            ...req.body,
+            createdBy: req.user.id
+        };
+        const question = new Question(questionData);
         const savedQuestion = await question.save();
         res.status(201).json(savedQuestion);
     } catch (error) {
@@ -71,9 +75,13 @@ router.post('/', authenticateToken, authorizeRole(['teacher', 'admin']), async (
 // Only teachers and admins can update questions
 router.put('/:id', authenticateToken, authorizeRole(['teacher', 'admin']), async (req, res) => {
     try {
+        const updateData = {
+            ...req.body,
+            updatedBy: req.user.id
+        };
         const question = await Question.findByIdAndUpdate(
             req.params.id,
-            req.body,
+            updateData,
             { new: true, runValidators: true }
         );
         if (!question) {

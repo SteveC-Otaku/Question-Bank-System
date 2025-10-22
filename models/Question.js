@@ -65,8 +65,9 @@ const questionSchema = new mongoose.Schema({
     }],
     tags: [String],
     createdBy: {
-        type: String,
-        default: 'lecturer'
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     },
     createdAt: {
         type: Date,
@@ -75,6 +76,10 @@ const questionSchema = new mongoose.Schema({
     updatedAt: {
         type: Date,
         default: Date.now
+    },
+    updatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     }
 });
 

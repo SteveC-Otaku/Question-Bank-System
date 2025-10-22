@@ -84,7 +84,8 @@ router.post('/', authenticateToken, authorizeRole(['admin']), async (req, res) =
             firstName,
             lastName,
             role,
-            isActive
+            isActive,
+            createdBy: req.user.id
         });
 
         await user.save();
@@ -135,7 +136,7 @@ router.put('/:id', authenticateToken, authorizeRole(['admin']), async (req, res)
 
         const updatedUser = await User.findByIdAndUpdate(
             req.params.id,
-            updates,
+            { ...updates, updatedBy: req.user.id },
             { new: true, runValidators: true }
         ).select('-password');
 
