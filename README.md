@@ -238,7 +238,7 @@ DEBUG=app:* npm start
 
 ## Authors
 
-- **CSIT321 Group 9** - 
+- **CSIT321 Group 9** 
 
 ## Acknowledgments
 
