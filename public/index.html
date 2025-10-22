@@ -462,69 +462,97 @@
             <div class="row">
                 <div class="col-12">
                     <h2><i class="fas fa-code me-2"></i>Code Testing</h2>
+                    <p class="text-muted">Write and test your code with multiple programming languages</p>
                     
                     <div class="row mt-4">
-                        <div class="col-md-8">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5>Code Editor</h5>
+                        <!-- Code Editor -->
+                        <div class="col-lg-6">
+                            <div class="card h-100">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Code Editor</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="mb-3">
-                                        <label class="form-label">Programming Language</label>
+                                        <label class="form-label fw-bold">Programming Language</label>
                                         <select class="form-select" id="programmingLanguage">
-                                            <option value="java">Java</option>
                                             <option value="python">Python</option>
+                                            <option value="java">Java</option>
+                                            <option value="javascript">JavaScript</option>
                                         </select>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Code</label>
-                                        <textarea class="form-control" id="codeEditor" rows="15" placeholder="Enter your code here..."></textarea>
+                                        <label class="form-label fw-bold">Your Code</label>
+                                        <div class="alert alert-info mb-2" id="codeHint">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            <strong>Important Note:</strong> In Python, the <code>input()</code> function returns a string. For mathematical operations, use <code>int(input())</code> or <code>float(input())</code> for type conversion.
+                                        </div>
+                                        <textarea class="form-control code-editor" id="codeEditor" rows="12" 
+                                                  placeholder="Enter your code here...&#10;&#10;Example for Python:&#10;a = int(input())&#10;b = int(input())&#10;print(a + b)"></textarea>
                                     </div>
-                                    <div class="mb-3">
-                                        <button class="btn btn-primary me-2" id="validateCode">
-                                            <i class="fas fa-check me-1"></i>Validate Syntax
-                                        </button>
-                                        <button class="btn btn-success" id="runTests">
-                                            <i class="fas fa-play me-1"></i>Run Tests
+                                    <div class="d-grid">
+                                        <button class="btn btn-success btn-lg" id="runTests">
+                                            <i class="fas fa-play me-2"></i>Run Code
                                         </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5>Test Cases</h5>
+                        <!-- Test Cases -->
+                        <div class="col-lg-6">
+                            <div class="card h-100">
+                                <div class="card-header bg-info text-white">
+                                    <h5 class="mb-0"><i class="fas fa-vial me-2"></i>Test Cases</h5>
                                 </div>
                                 <div class="card-body">
                                     <div id="testCasesContainer">
-                                        <div class="test-case mb-3">
-                                            <h6>Test Case 1</h6>
-                                            <div class="mb-2">
-                                                <label class="form-label">Input</label>
-                                                <input type="text" class="form-control test-input" placeholder="Input value">
+                                        <div class="test-case mb-3 p-3 border rounded">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="mb-0">Test Case 1</h6>
+                                                <button type="button" class="btn btn-outline-danger btn-sm remove-test-case">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
                                             </div>
-                                            <div class="mb-2">
-                                                <label class="form-label">Expected Output</label>
-                                                <input type="text" class="form-control test-expected" placeholder="Expected output">
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Input</label>
+                                                <textarea class="form-control test-input" rows="3" 
+                                                          placeholder="Enter input values (one per line)&#10;&#10;Example:&#10;1&#10;2"></textarea>
+                                                <small class="form-text text-muted">Enter each input value on a separate line</small>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Expected Output</label>
+                                                <textarea class="form-control test-expected" rows="2" 
+                                                          placeholder="Expected output&#10;&#10;Example:&#10;3"></textarea>
                                             </div>
                                         </div>
                                     </div>
-                                    <button class="btn btn-outline-primary btn-sm" id="addTestCase">
-                                        <i class="fas fa-plus me-1"></i>Add Test Case
-                                    </button>
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-primary" id="addTestCase">
+                                            <i class="fas fa-plus me-2"></i>Add Test Case
+                                        </button>
+                                        <button class="btn btn-outline-secondary" id="clearTestCases">
+                                            <i class="fas fa-trash me-2"></i>Clear All
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <div class="card mt-3">
-                                <div class="card-header">
-                                    <h5>Test Results</h5>
+                        </div>
+                    </div>
+                    
+                    <!-- Test Results -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Test Results</h5>
                                 </div>
                                 <div class="card-body">
                                     <div id="testResults">
-                                        <p class="text-muted">Run tests to see results</p>
+                                        <div class="text-center text-muted py-4">
+                                            <i class="fas fa-play-circle fa-3x mb-3"></i>
+                                            <h5>Ready to Test</h5>
+                                            <p>Write your code, add test cases, and click "Run Code" to see the results</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

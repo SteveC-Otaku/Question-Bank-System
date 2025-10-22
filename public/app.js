@@ -23,7 +23,7 @@ class QuestionBankApp {
 
         console.log('User authenticated:', window.auth.getCurrentUser());
         
-        // 验证token是否仍然有效
+        // Validate if token is still valid
         this.validateToken();
         
         // Display user information
@@ -391,7 +391,7 @@ class QuestionBankApp {
             });
         });
 
-        // Question management - 添加null检查
+        // Question management - Add null checks
         const saveQuestionBtn = document.getElementById('saveQuestion');
         if (saveQuestionBtn) saveQuestionBtn.addEventListener('click', () => this.saveQuestion());
         
@@ -401,14 +401,14 @@ class QuestionBankApp {
         const questionTypeSelect = document.getElementById('questionType');
         if (questionTypeSelect) questionTypeSelect.addEventListener('change', () => this.handleQuestionTypeChange());
 
-        // Answer management - 添加null检查
+        // Answer management - Add null checks
         const saveAnswerBtn = document.getElementById('saveAnswer');
         if (saveAnswerBtn) saveAnswerBtn.addEventListener('click', () => this.saveAnswer());
         
         const viewQuestionAddAnswerBtn = document.getElementById('viewQuestionAddAnswer');
         if (viewQuestionAddAnswerBtn) viewQuestionAddAnswerBtn.addEventListener('click', () => this.viewQuestionAddAnswer());
 
-        // Profile management - 添加null检查
+        // Profile management - Add null checks
         const userProfileBtn = document.getElementById('userProfile');
         if (userProfileBtn) userProfileBtn.addEventListener('click', () => this.showProfile());
         
@@ -418,13 +418,13 @@ class QuestionBankApp {
         const changePasswordForm = document.getElementById('changePasswordForm');
         if (changePasswordForm) changePasswordForm.addEventListener('submit', (e) => this.changePassword(e));
 
-        // User management (Admin only) - 已经使用了可选链操作符
+        // User management (Admin only) - Optional chaining already used
         document.getElementById('addUserBtn')?.addEventListener('click', () => this.showAddUserModal());
         document.getElementById('saveUser')?.addEventListener('click', () => this.saveUser());
         document.getElementById('refreshUsersBtn')?.addEventListener('click', () => this.loadUsers());
         document.getElementById('userSearchInput')?.addEventListener('input', (e) => this.searchUsers(e.target.value));
 
-        // Filters - 添加null检查
+        // Filters - Add null checks
         const searchInput = document.getElementById('searchInput');
         if (searchInput) searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
         
@@ -440,43 +440,25 @@ class QuestionBankApp {
         const clearFiltersBtn = document.getElementById('clearFilters');
         if (clearFiltersBtn) clearFiltersBtn.addEventListener('click', () => this.clearFilters());
 
-        // Import/Export - 添加null检查
+        // Import/Export - Add null checks
         const importForm = document.getElementById('importForm');
         if (importForm) importForm.addEventListener('submit', (e) => this.handleImport(e));
         
         const exportForm = document.getElementById('exportForm');
         if (exportForm) exportForm.addEventListener('submit', (e) => this.handleExport(e));
 
-        // Code testing - enhanced functionality - 添加null检查
-        const validateCodeBtn = document.getElementById('validateCode');
-        if (validateCodeBtn) validateCodeBtn.addEventListener('click', () => this.validateCode());
-        
+        // Code testing functionality
         const runTestsBtn = document.getElementById('runTests');
-        if (runTestsBtn) runTestsBtn.addEventListener('click', () => this.runTests());
-        
-        const debugCodeBtn = document.getElementById('debugCode');
-        if (debugCodeBtn) debugCodeBtn.addEventListener('click', () => this.debugCode());
+        if (runTestsBtn) runTestsBtn.addEventListener('click', () => this.runCodeTests());
         
         const addTestCaseBtn = document.getElementById('addTestCase');
         if (addTestCaseBtn) addTestCaseBtn.addEventListener('click', () => this.addTestCase());
         
-        const loadTemplateBtn = document.getElementById('loadTemplate');
-        if (loadTemplateBtn) loadTemplateBtn.addEventListener('click', () => this.loadCodeTemplate());
-        
-        const clearCodeBtn = document.getElementById('clearCode');
-        if (clearCodeBtn) clearCodeBtn.addEventListener('click', () => this.clearCode());
-        
-        const generateTestCasesBtn = document.getElementById('generateTestCases');
-        if (generateTestCasesBtn) generateTestCasesBtn.addEventListener('click', () => this.generateTestCases());
-        
         const clearTestCasesBtn = document.getElementById('clearTestCases');
-        if (clearTestCasesBtn) clearTestCasesBtn.addEventListener('click', () => this.clearTestCases());
+        if (clearTestCasesBtn) clearTestCasesBtn.addEventListener('click', () => this.clearAllTestCases());
         
         const programmingLanguageSelect = document.getElementById('programmingLanguage');
         if (programmingLanguageSelect) programmingLanguageSelect.addEventListener('change', () => this.handleLanguageChange());
-        
-        const inputFormatSelect = document.getElementById('inputFormat');
-        if (inputFormatSelect) inputFormatSelect.addEventListener('change', () => this.handleInputFormatChange());
     }
 
     showSection(sectionName) {
@@ -605,7 +587,7 @@ class QuestionBankApp {
 
     async loadQuestions(page = 1) {
         try {
-            // 检查认证状态
+            // Check authentication status
             if (!window.auth || !window.auth.isAuthenticated()) {
                 console.error('User not authenticated');
                 this.showMessage('Please log in to access questions', 'error');
@@ -647,7 +629,7 @@ class QuestionBankApp {
             console.error('Error loading questions:', error);
             this.showMessage(`Error loading questions: ${error.message}`, 'error');
             
-            // 显示空状态
+            // Show empty state
             const tbody = document.getElementById('questionsTableBody');
             if (tbody) {
                 tbody.innerHTML = `
@@ -837,7 +819,7 @@ class QuestionBankApp {
         const type = document.getElementById('questionType').value;
         const options = [];
         
-        // 处理选项（仅用于multiple_choice类型）
+        // Handle options (only for multiple_choice type)
         if (type === 'multiple_choice') {
             document.querySelectorAll('.option-text').forEach((input, index) => {
                 if (input.value.trim()) {
@@ -860,7 +842,7 @@ class QuestionBankApp {
             tags: document.getElementById('questionTags').value.split(',').map(tag => tag.trim()).filter(tag => tag)
         };
 
-        // 根据题目类型添加特定字段
+        // Add specific fields based on question type
         switch (type) {
             case 'multiple_choice':
                 formData.options = options;
@@ -876,7 +858,7 @@ class QuestionBankApp {
                 formData.testCases = this.getTestCases();
                 break;
             case 'essay':
-                // 论文题目不需要额外字段
+                // Essay questions do not need additional fields
                 break;
         }
 
@@ -913,12 +895,12 @@ class QuestionBankApp {
         const shortAnswerContainer = document.getElementById('shortAnswerContainer');
         const programmingLanguageField = document.getElementById('questionProgrammingLanguage').parentElement.parentElement;
         
-        // 隐藏所有特定字段
+        // Hide all specific fields
         optionsContainer.style.display = 'none';
         trueFalseContainer.style.display = 'none';
         shortAnswerContainer.style.display = 'none';
         
-        // 根据类型显示相应字段
+        // Show corresponding fields based on type
         switch (type) {
             case 'multiple_choice':
                 optionsContainer.style.display = 'block';
@@ -1090,41 +1072,12 @@ class QuestionBankApp {
         }
     }
 
-    async validateCode() {
-        const code = document.getElementById('codeEditor').value;
-        const language = document.getElementById('programmingLanguage').value;
-
-        if (!code.trim()) {
-            this.showMessage('Please enter some code to validate', 'error');
-            return;
-        }
-
-        try {
-            const response = await fetch('/api/code-test/validate', {
-                method: 'POST',
-                headers: window.auth.getAuthHeaders(),
-                body: JSON.stringify({ language, code })
-            });
-
-            const result = await response.json();
-
-            if (result.valid) {
-                this.showMessage('Code syntax is valid!', 'success');
-            } else {
-                this.showMessage(`Syntax error: ${result.errors.join(', ')}`, 'error');
-            }
-
-        } catch (error) {
-            console.error('Error validating code:', error);
-            this.showMessage('Error validating code', 'error');
-        }
-    }
-
-    async runTests() {
+    async runCodeTests() {
         const code = document.getElementById('codeEditor').value;
         const language = document.getElementById('programmingLanguage').value;
         const testCases = this.getTestCases();
 
+        // Validate input
         if (!code.trim()) {
             this.showMessage('Please enter some code to test', 'error');
             return;
@@ -1135,72 +1088,118 @@ class QuestionBankApp {
             return;
         }
 
+        // Show loading state
+        this.showLoadingState();
+
         try {
+            console.log('Running code tests:', { language, code, testCases });
+            
             const response = await fetch(`/api/code-test/${language}`, {
                 method: 'POST',
-                headers: window.auth.getAuthHeaders(),
+                headers: {
+                    ...window.auth.getAuthHeaders(),
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({ code, testCases })
             });
 
             const result = await response.json();
+            console.log('Test result:', result);
 
             if (result.success) {
                 this.displayTestResults(result);
             } else {
                 this.showMessage(result.error || 'Error running tests', 'error');
+                this.showEmptyState();
             }
 
         } catch (error) {
             console.error('Error running tests:', error);
             this.showMessage('Error running tests', 'error');
+            this.showEmptyState();
         }
     }
 
-    getTestCases() {
-        const testCases = [];
-        document.querySelectorAll('.test-case').forEach((testCase, index) => {
-            const input = testCase.querySelector('.test-input').value;
-            const expected = testCase.querySelector('.test-expected').value;
-            
-            if (input.trim() && expected.trim()) {
-                testCases.push({
-                    input: input.trim(),
-                    expectedOutput: expected.trim(),
-                    description: `Test case ${index + 1}`
-                });
-            }
-        });
-        return testCases;
-    }
 
     displayTestResults(result) {
         const resultsContainer = document.getElementById('testResults');
         
+        // Calculate statistics
+        const total = result.testResults.length;
+        const passed = result.testResults.filter(test => test.passed).length;
+        const failed = total - passed;
+        const successRate = total > 0 ? Math.round((passed / total) * 100) : 0;
+        
         let html = `
-            <div class="mb-3">
-                <h6>Test Summary</h6>
-                <p>Total: ${result.summary.total} | Passed: ${result.summary.passed} | Failed: ${result.summary.failed}</p>
+            <div class="test-summary mb-4">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="h4 text-primary">${total}</div>
+                        <div class="text-muted">Total Tests</div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="h4 text-success">${passed}</div>
+                        <div class="text-muted">Passed</div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="h4 text-danger">${failed}</div>
+                        <div class="text-muted">Failed</div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="h4 ${successRate === 100 ? 'text-success' : successRate >= 50 ? 'text-warning' : 'text-danger'}">${successRate}%</div>
+                        <div class="text-muted">Success Rate</div>
+                    </div>
+                </div>
             </div>
         `;
 
+        // Display results for each test case
         result.testResults.forEach((test, index) => {
             const statusClass = test.passed ? 'success' : 'danger';
-            const statusIcon = test.passed ? 'check' : 'times';
+            const statusIcon = test.passed ? 'check-circle' : 'times-circle';
+            const borderClass = test.passed ? 'border-success' : 'border-danger';
             
             html += `
-                <div class="test-result mb-2 p-2 border rounded">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <strong>Test Case ${index + 1}</strong>
-                        <span class="badge bg-${statusClass}">
+                <div class="test-result mb-3 p-3 border ${borderClass} rounded">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">Test Case ${index + 1}</h6>
+                        <span class="badge bg-${statusClass} fs-6">
                             <i class="fas fa-${statusIcon} me-1"></i>${test.passed ? 'PASS' : 'FAIL'}
                         </span>
                     </div>
-                    <div class="mt-2">
-                        <small><strong>Input:</strong> ${test.input}</small><br>
-                        <small><strong>Expected:</strong> ${test.expectedOutput}</small><br>
-                        <small><strong>Actual:</strong> ${test.actualOutput}</small>
-                        ${test.error ? `<br><small class="text-danger"><strong>Error:</strong> ${test.error}</small>` : ''}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <strong class="text-primary">Input:</strong>
+                                <div class="bg-light p-2 rounded mt-1">
+                                    <code>${test.input.replace(/\n/g, '<br>')}</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <strong class="text-success">Expected Output:</strong>
+                                <div class="bg-light p-2 rounded mt-1">
+                                    <code>${test.expectedOutput}</code>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-2">
+                                <strong class="text-info">Actual Output:</strong>
+                                <div class="bg-light p-2 rounded mt-1">
+                                    <code>${test.actualOutput || '(no output)'}</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    ${test.error ? `
+                        <div class="alert alert-danger mt-2">
+                            <strong>Error:</strong> ${test.error}
+                        </div>
+                    ` : ''}
                 </div>
             `;
         });
@@ -1213,21 +1212,24 @@ class QuestionBankApp {
         const testCaseCount = container.children.length + 1;
         
         const testCase = document.createElement('div');
-        testCase.className = 'test-case mb-3';
+        testCase.className = 'test-case mb-3 p-3 border rounded';
         testCase.innerHTML = `
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <h6>Test Case ${testCaseCount}</h6>
+                <h6 class="mb-0">Test Case ${testCaseCount}</h6>
                 <button type="button" class="btn btn-outline-danger btn-sm remove-test-case">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
-            <div class="mb-2">
-                <label class="form-label">Input</label>
-                <input type="text" class="form-control test-input" placeholder="Input value">
+            <div class="mb-3">
+                <label class="form-label fw-bold">Input</label>
+                <textarea class="form-control test-input" rows="3" 
+                          placeholder="Enter input values (one per line)&#10;&#10;Example:&#10;1&#10;2"></textarea>
+                <small class="form-text text-muted">Enter each input value on a separate line</small>
             </div>
-            <div class="mb-2">
-                <label class="form-label">Expected Output</label>
-                <input type="text" class="form-control test-expected" placeholder="Expected output">
+            <div class="mb-3">
+                <label class="form-label fw-bold">Expected Output</label>
+                <textarea class="form-control test-expected" rows="2" 
+                          placeholder="Expected output&#10;&#10;Example:&#10;3"></textarea>
             </div>
         `;
         
@@ -1238,6 +1240,38 @@ class QuestionBankApp {
             testCase.remove();
             this.updateTestCaseNumbers();
         });
+    }
+
+    clearAllTestCases() {
+        if (confirm('Are you sure you want to clear all test cases?')) {
+            document.getElementById('testCasesContainer').innerHTML = '';
+            this.addTestCase(); // Add one empty test case
+            this.showMessage('All test cases cleared', 'info');
+        }
+    }
+
+    showLoadingState() {
+        const resultsContainer = document.getElementById('testResults');
+        resultsContainer.innerHTML = `
+            <div class="text-center py-4">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h5>Running Tests...</h5>
+                <p class="text-muted">Please wait while your code is being executed</p>
+            </div>
+        `;
+    }
+
+    showEmptyState() {
+        const resultsContainer = document.getElementById('testResults');
+        resultsContainer.innerHTML = `
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-play-circle fa-3x mb-3"></i>
+                <h5>Ready to Test</h5>
+                <p>Write your code, add test cases, and click "Run Code" to see the results</p>
+            </div>
+        `;
     }
 
     updateTestCaseNumbers() {
@@ -1282,7 +1316,7 @@ class QuestionBankApp {
             document.getElementById('answerQuestionId').value = question._id;
             document.getElementById('answerQuestionTitle').value = question.title;
             
-            // 如果已有答案，填充现有数据
+            // If answer exists, populate existing data
             if (question.answer) {
                 document.getElementById('answerExplanation').value = question.answer.explanation || '';
                 document.getElementById('answerDetailedSolution').value = question.answer.detailedSolution || '';
@@ -1291,7 +1325,7 @@ class QuestionBankApp {
                 document.getElementById('answerDifficulty').value = question.answer.difficulty || 'medium';
                 document.getElementById('answerModalTitle').textContent = 'Edit Answer';
             } else {
-                // 清空表单
+                // Clear form
                 document.getElementById('answerForm').reset();
                 document.getElementById('answerModalTitle').textContent = 'Add Answer';
             }
@@ -1357,7 +1391,7 @@ class QuestionBankApp {
             });
             const question = await response.json();
 
-            // 填充问题信息
+            // Populate question information
             document.getElementById('viewQuestionTitle').textContent = question.title;
             document.getElementById('viewQuestionSubject').textContent = question.subject;
             document.getElementById('viewQuestionType').textContent = question.type.replace('_', ' ').toUpperCase();
@@ -1366,7 +1400,7 @@ class QuestionBankApp {
             document.getElementById('viewQuestionTags').textContent = question.tags.join(', ');
             document.getElementById('viewQuestionCreated').textContent = new Date(question.createdAt).toLocaleString();
 
-            // 处理选项（如果是选择题）
+            // Handle options (if multiple choice)
             const optionsContainer = document.getElementById('viewQuestionOptions');
             const optionsList = document.getElementById('viewQuestionOptionsList');
             if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
@@ -1381,7 +1415,7 @@ class QuestionBankApp {
                 optionsContainer.style.display = 'none';
             }
 
-            // 处理正确答案
+            // Handle correct answer
             const correctAnswerContainer = document.getElementById('viewQuestionCorrectAnswer');
             const correctAnswerText = document.getElementById('viewQuestionCorrectAnswerText');
             if (question.correctAnswer) {
@@ -1391,7 +1425,7 @@ class QuestionBankApp {
                 correctAnswerContainer.style.display = 'none';
             }
 
-            // 处理答案信息
+            // Handle answer information
             const noAnswerDiv = document.getElementById('viewQuestionNoAnswer');
             const answerDetailsDiv = document.getElementById('viewQuestionAnswerDetails');
             
@@ -1403,7 +1437,7 @@ class QuestionBankApp {
                 document.getElementById('viewQuestionDetailedSolution').textContent = question.answer.detailedSolution || 'No detailed solution provided.';
                 document.getElementById('viewQuestionAnswerDifficulty').textContent = question.answer.difficulty.toUpperCase();
                 
-                // 处理关键点
+                // Handle key points
                 const keyPointsList = document.getElementById('viewQuestionKeyPoints');
                 keyPointsList.innerHTML = '';
                 if (question.answer.keyPoints && question.answer.keyPoints.length > 0) {
@@ -1418,7 +1452,7 @@ class QuestionBankApp {
                     keyPointsList.appendChild(li);
                 }
                 
-                // 处理参考资料
+                // Handle references
                 const referencesList = document.getElementById('viewQuestionReferences');
                 referencesList.innerHTML = '';
                 if (question.answer.references && question.answer.references.length > 0) {
@@ -1437,7 +1471,7 @@ class QuestionBankApp {
                 answerDetailsDiv.style.display = 'none';
             }
 
-            // 存储当前问题ID用于添加答案
+            // Store current question ID for adding answer
             document.getElementById('viewQuestionModal').dataset.questionId = questionId;
 
             new bootstrap.Modal(document.getElementById('viewQuestionModal')).show();
@@ -1648,11 +1682,12 @@ public class TestCode {
             </div>
             <div class="mb-2">
                 <label class="form-label">Input</label>
-                <input type="text" class="form-control test-input" placeholder="Input value" value="${input}">
+                <textarea class="form-control test-input" rows="3" placeholder="Enter input values (one per line)">${input}</textarea>
+                <small class="form-text text-muted">Enter each input value on a separate line</small>
             </div>
             <div class="mb-2">
                 <label class="form-label">Expected Output</label>
-                <input type="text" class="form-control test-expected" placeholder="Expected output" value="${expected}">
+                <textarea class="form-control test-expected" rows="2" placeholder="Expected output">${expected}</textarea>
             </div>
             <div class="mb-2">
                 <label class="form-label">Description (Optional)</label>
@@ -1680,20 +1715,26 @@ public class TestCode {
     handleLanguageChange() {
         const language = document.getElementById('programmingLanguage').value;
         const codeEditor = document.getElementById('codeEditor');
+        const codeHint = document.getElementById('codeHint');
         
         // Update placeholder based on language
-        if (language === 'python') {
-            codeEditor.placeholder = 'Enter your Python code here...\n\nExample:\na = int(input())\nb = int(input())\nprint(a + b)';
-        } else if (language === 'java') {
-            codeEditor.placeholder = 'Enter your Java code here...\n\nExample:\nScanner scanner = new Scanner(System.in);\nint a = scanner.nextInt();\nint b = scanner.nextInt();\nSystem.out.println(a + b);';
+        switch (language) {
+            case 'python':
+                codeEditor.placeholder = 'Enter your Python code here...\n\nExample:\na = int(input())\nb = int(input())\nprint(a + b)';
+                codeHint.innerHTML = '<i class="fas fa-info-circle me-2"></i><strong>Important Note:</strong> In Python, the <code>input()</code> function returns a string. For mathematical operations, use <code>int(input())</code> or <code>float(input())</code> for type conversion.';
+                break;
+            case 'java':
+                codeEditor.placeholder = 'Enter your Java code here...\n\nExample:\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        int a = scanner.nextInt();\n        int b = scanner.nextInt();\n        System.out.println(a + b);\n    }\n}';
+                codeHint.innerHTML = '<i class="fas fa-info-circle me-2"></i><strong>Java Tip:</strong> Use <code>Scanner</code> class to read input, <code>nextInt()</code> directly returns integer type.';
+                break;
+            case 'javascript':
+                codeEditor.placeholder = 'Enter your JavaScript code here...\n\nExample:\nconst readline = require(\'readline\');\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout\n});\n\nrl.question(\'\', (a) => {\n    rl.question(\'\', (b) => {\n        console.log(parseInt(a) + parseInt(b));\n        rl.close();\n    });\n});';
+                codeHint.innerHTML = '<i class="fas fa-info-circle me-2"></i><strong>JavaScript Tip:</strong> Use <code>parseInt()</code> or <code>parseFloat()</code> to convert strings to numbers.';
+                break;
         }
         
-        // Clear code editor when language changes
-        if (codeEditor.value.trim()) {
-            if (confirm('Language changed. Do you want to clear the current code?')) {
-                codeEditor.value = '';
-            }
-        }
+        // Show message about language change
+        this.showMessage(`Switched to ${language.charAt(0).toUpperCase() + language.slice(1)}`, 'info');
     }
 
     handleInputFormatChange() {
@@ -1834,13 +1875,15 @@ public class TestCode {
         document.querySelectorAll('.test-case').forEach((testCase, index) => {
             const input = testCase.querySelector('.test-input').value;
             const expected = testCase.querySelector('.test-expected').value;
-            const description = testCase.querySelector('.test-description')?.value || '';
             
             if (input.trim() && expected.trim()) {
+                // Convert textarea line breaks to \n for backend processing
+                const processedInput = input.trim().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+                
                 testCases.push({
-                    input: input.trim(),
+                    input: processedInput,
                     expectedOutput: expected.trim(),
-                    description: description || `Test case ${index + 1}`
+                    description: `Test case ${index + 1}`
                 });
             }
         });

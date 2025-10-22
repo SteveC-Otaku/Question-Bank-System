@@ -788,4 +788,96 @@ body {
 .permission-item span {
     font-size: 0.9rem;
     color: #555;
+}
+
+/* Code Testing Styles */
+.test-case {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.test-case:hover {
+    border-color: #0d6efd;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.test-input, .test-expected {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    resize: vertical;
+}
+
+.test-input:focus, .test-expected:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.form-text {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+.test-result {
+    border-left: 4px solid #dee2e6;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 0 8px 8px 0;
+    background-color: #f8f9fa;
+}
+
+.test-result.passed {
+    border-left-color: #198754;
+    background-color: #d1e7dd;
+}
+
+.test-result.failed {
+    border-left-color: #dc3545;
+    background-color: #f8d7da;
+}
+
+.code-editor {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Test case management */
+.remove-test-case {
+    transition: all 0.2s ease;
+}
+
+.remove-test-case:hover {
+    transform: scale(1.1);
+}
+
+/* Test results styling */
+.test-summary {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.test-summary .row > div {
+    text-align: center;
+    padding: 10px;
+}
+
+.test-summary .h4 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.test-summary .text-muted {
+    color: #6c757d !important;
+    font-size: 0.9rem;
+    font-weight: 500;
 } 
