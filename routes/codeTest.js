@@ -15,6 +15,15 @@ router.post('/java', authenticateToken, async (req, res) => {
             return res.status(400).json({ error: 'No code provided' });
         }
 
+        // Check if Java is available
+        const javaAvailable = await checkJavaAvailability();
+        if (!javaAvailable) {
+            return res.status(400).json({ 
+                error: 'Java development environment not found. Please install Java JDK to test Java code.',
+                details: 'Java compiler (javac) is not available in the system PATH. Please install OpenJDK or Oracle JDK.'
+            });
+        }
+
         const testDir = path.join(__dirname, '../temp', uuidv4());
         await fs.ensureDir(testDir);
 
@@ -141,6 +150,20 @@ router.post('/python', authenticateToken, async (req, res) => {
 
 
 // Helper functions
+async function checkJavaAvailability() {
+    return new Promise((resolve) => {
+        const javac = spawn('javac', ['-version']);
+        
+        javac.on('close', (code) => {
+            resolve(code === 0);
+        });
+        
+        javac.on('error', (err) => {
+            resolve(false);
+        });
+    });
+}
+
 async function compileJava(javaFilePath) {
     return new Promise((resolve) => {
         const javac = spawn('javac', [javaFilePath]);

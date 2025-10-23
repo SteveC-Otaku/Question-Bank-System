@@ -1439,6 +1439,15 @@ class QuestionBankApp {
             document.getElementById('viewQuestionContent').textContent = question.content;
             document.getElementById('viewQuestionTags').textContent = question.tags.join(', ');
             document.getElementById('viewQuestionCreated').textContent = new Date(question.createdAt).toLocaleString();
+            
+            // Display creator information
+            if (question.createdBy) {
+                const creatorName = `${question.createdBy.firstName} ${question.createdBy.lastName}`;
+                const creatorEmail = question.createdBy.email ? ` (${question.createdBy.email})` : '';
+                document.getElementById('viewQuestionCreatedBy').textContent = creatorName + creatorEmail;
+            } else {
+                document.getElementById('viewQuestionCreatedBy').textContent = 'Unknown';
+            }
 
             // Handle options (if multiple choice)
             const optionsContainer = document.getElementById('viewQuestionOptions');

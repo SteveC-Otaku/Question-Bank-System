@@ -45,7 +45,9 @@ router.get('/', authenticateToken, async (req, res) => {
 // All authenticated users can view individual questions
 router.get('/:id', authenticateToken, async (req, res) => {
     try {
-        const question = await Question.findById(req.params.id);
+        const question = await Question.findById(req.params.id)
+            .populate('createdBy', 'firstName lastName email')
+            .populate('updatedBy', 'firstName lastName email');
         if (!question) {
             return res.status(404).json({ error: 'Question not found' });
         }

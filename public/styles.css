@@ -17,9 +17,31 @@ body {
 }
 
 /* Navigation */
+.navbar-logo {
+    height: 32px;
+    width: auto;
+    vertical-align: middle;
+    align-self: center;
+}
+
+.login-logo {
+    height: 24px;
+    width: auto;
+    vertical-align: middle;
+    align-self: center;
+}
+
+.card-header h4 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .navbar-brand {
     font-weight: bold;
     font-size: 1.5rem;
+    display: flex;
+    align-items: center;
 }
 
 .nav-link {
