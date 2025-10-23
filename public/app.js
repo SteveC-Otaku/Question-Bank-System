@@ -1030,7 +1030,7 @@ class QuestionBankApp {
         document.getElementById('questionModalTitle').textContent = 'Add New Question';
         document.getElementById('optionsList').innerHTML = '';
         this.addOption(); // Add one default option
-        bootstrap.Modal.getInstance(document.getElementById('questionModal')).hide();
+        // Modal will be hidden by the event listener
     }
 
     async handleImport(event) {
@@ -1420,7 +1420,7 @@ class QuestionBankApp {
         document.getElementById('answerForm').reset();
         document.getElementById('answerQuestionId').value = '';
         document.getElementById('answerModalTitle').textContent = 'Add Answer';
-        bootstrap.Modal.getInstance(document.getElementById('answerModal')).hide();
+        // Modal will be hidden by the event listener
     }
 
     // View question methods
@@ -2230,7 +2230,17 @@ public class TestCode {
         document.getElementById('userId').value = '';
         document.getElementById('userModalTitle').innerHTML = '<i class="fas fa-user-plus me-2"></i>Add New User';
         document.getElementById('userPassword').required = true;
-        new bootstrap.Modal(document.getElementById('userModal')).show();
+        
+        const modal = new bootstrap.Modal(document.getElementById('userModal'));
+        modal.show();
+        
+        // Focus management for accessibility
+        document.getElementById('userModal').addEventListener('shown.bs.modal', () => {
+            document.getElementById('userUsername').focus();
+            
+            // Add keyboard navigation support
+            this.setupModalKeyboardNavigation('userModal');
+        }, { once: true });
     }
 
     async editUser(userId) {
@@ -2257,7 +2267,17 @@ public class TestCode {
             document.getElementById('userPassword').placeholder = 'Leave blank to keep current password';
             
             document.getElementById('userModalTitle').innerHTML = '<i class="fas fa-user-edit me-2"></i>Edit User';
-            new bootstrap.Modal(document.getElementById('userModal')).show();
+            
+            const modal = new bootstrap.Modal(document.getElementById('userModal'));
+            modal.show();
+            
+            // Focus management for accessibility
+            document.getElementById('userModal').addEventListener('shown.bs.modal', () => {
+                document.getElementById('userUsername').focus();
+                
+                // Add keyboard navigation support
+                this.setupModalKeyboardNavigation('userModal');
+            }, { once: true });
             
         } catch (error) {
             console.error('Error loading user:', error);
@@ -2364,17 +2384,133 @@ public class TestCode {
             this.showMessage(`Error searching users: ${error.message}`, 'error');
         }
     }
+
+    setupModalKeyboardNavigation(modalId) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+
+        // Get all focusable elements within the modal
+        const focusableElements = modal.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstFocusableElement = focusableElements[0];
+        const lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+        // Handle Tab key navigation
+        modal.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                if (e.shiftKey) {
+                    // Shift + Tab: move backwards
+                    if (document.activeElement === firstFocusableElement) {
+                        e.preventDefault();
+                        lastFocusableElement.focus();
+                    }
+                } else {
+                    // Tab: move forwards
+                    if (document.activeElement === lastFocusableElement) {
+                        e.preventDefault();
+                        firstFocusableElement.focus();
+                    }
+                }
+            }
+            
+            // Escape key to close modal
+            if (e.key === 'Escape') {
+                const modalInstance = bootstrap.Modal.getInstance(modal);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            }
+        });
+    }
+
+    // Utility function to clean up modal backdrop and body styles
+    cleanupModalBackdrop() {
+        // Remove all modal backdrops
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        
+        // Clean up body classes and styles
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+    }
 }
 
 // Initialize the application
 const app = new QuestionBankApp();
 
-// Add event listener for modal close
-document.getElementById('questionModal').addEventListener('hidden.bs.modal', () => {
-    app.closeQuestionModal();
+// Add event listener for question modal hide (before aria-hidden is applied)
+document.getElementById('questionModal').addEventListener('hide.bs.modal', () => {
+    // Return focus to the trigger button BEFORE modal is hidden
+    const addQuestionBtn = document.getElementById('addQuestionBtn');
+    if (addQuestionBtn) {
+        addQuestionBtn.focus();
+    }
 });
 
-// Add event listener for answer modal close
+// Add event listener for question modal close (after modal is fully hidden)
+document.getElementById('questionModal').addEventListener('hidden.bs.modal', () => {
+    app.closeQuestionModal();
+    
+    // Clean up modal backdrop and body styles
+    app.cleanupModalBackdrop();
+});
+
+// Add event listener for answer modal hide (before aria-hidden is applied)
+document.getElementById('answerModal').addEventListener('hide.bs.modal', () => {
+    // Return focus to the trigger button BEFORE modal is hidden
+    const addAnswerBtn = document.querySelector('[data-bs-target="#answerModal"]');
+    if (addAnswerBtn) {
+        addAnswerBtn.focus();
+    }
+});
+
+// Add event listener for answer modal close (after modal is fully hidden)
 document.getElementById('answerModal').addEventListener('hidden.bs.modal', () => {
     app.closeAnswerModal();
+    
+    // Clean up modal backdrop and body styles
+    app.cleanupModalBackdrop();
+});
+
+// Add event listener for user modal hide (before aria-hidden is applied)
+document.getElementById('userModal').addEventListener('hide.bs.modal', () => {
+    // Return focus to the trigger button BEFORE modal is hidden
+    const addUserBtn = document.getElementById('addUserBtn');
+    if (addUserBtn) {
+        addUserBtn.focus();
+    }
+});
+
+// Add event listener for close button clicks to move focus immediately
+document.addEventListener('click', (event) => {
+    if (event.target.matches('#userModal .btn-close, #userModal [data-bs-dismiss="modal"]')) {
+        // Move focus immediately when close button is clicked
+        const addUserBtn = document.getElementById('addUserBtn');
+        if (addUserBtn) {
+            addUserBtn.focus();
+        }
+        
+        // Ensure modal backdrop is removed
+        setTimeout(() => {
+            app.cleanupModalBackdrop();
+        }, 100);
+    }
+});
+
+// Add event listener for user modal close (after modal is fully hidden)
+document.getElementById('userModal').addEventListener('hidden.bs.modal', () => {
+    // Reset form and clear any validation states
+    document.getElementById('userForm').reset();
+    document.getElementById('userId').value = '';
+    
+    // Remove any validation classes
+    const formInputs = document.querySelectorAll('#userModal .form-control, #userModal .form-select');
+    formInputs.forEach(input => {
+        input.classList.remove('is-valid', 'is-invalid');
+    });
+    
+    // Clean up modal backdrop and body styles
+    app.cleanupModalBackdrop();
 }); 
